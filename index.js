@@ -11,8 +11,15 @@ const vorpal_1 = __importDefault(require("vorpal"));
 const util_1 = require("util");
 const vorpal = new vorpal_1.default();
 let queue;
-const deepLog = (arr) => {
+const showJobs = (arr) => {
     console.log(util_1.inspect(arr, { colors: true }));
+};
+const checkQueue = async () => {
+    if (!queue) {
+        console.log(chalk_1.default.red('Need connect before'));
+        return Promise.reject();
+    }
+    return await queue.isReady();
 };
 vorpal.command('connect <queue> [url]', 'connect to bull queue')
     .action(async ({ queue: name, url = 'redis://localhost:6379' }) => {
@@ -24,66 +31,42 @@ vorpal.command('connect <queue> [url]', 'connect to bull queue')
 });
 vorpal.command('stats', 'count of jobs by groups')
     .action(async () => {
-    if (!queue) {
-        return console.log(chalk_1.default.red('Need connect before'));
-    }
-    await queue.isReady();
+    await checkQueue();
     console.table(await queue.getJobCounts());
 });
 vorpal.command('active', 'fetch active jobs')
     .action(async () => {
-    if (!queue) {
-        return console.log(chalk_1.default.red('Need connect before'));
-    }
-    await queue.isReady();
-    deepLog(await queue.getActive());
+    await checkQueue();
+    showJobs(await queue.getActive());
 });
 vorpal.command('waiting', 'fetch waiting jobs')
     .action(async () => {
-    if (!queue) {
-        return console.log(chalk_1.default.red('Need connect before'));
-    }
-    await queue.isReady();
-    deepLog(await queue.getWaiting());
+    await checkQueue();
+    showJobs(await queue.getWaiting());
 });
 vorpal.command('completed', 'fetch completed jobs')
     .action(async () => {
-    if (!queue) {
-        return console.log(chalk_1.default.red('Need connect before'));
-    }
-    await queue.isReady();
-    deepLog(await queue.getCompleted());
+    await checkQueue();
+    showJobs(await queue.getCompleted());
 });
 vorpal.command('failed', 'fetch failed jobs')
     .action(async () => {
-    if (!queue) {
-        return console.log(chalk_1.default.red('Need connect before'));
-    }
-    await queue.isReady();
-    deepLog(await queue.getFailed());
+    await checkQueue();
+    showJobs(await queue.getFailed());
 });
 vorpal.command('delayed', 'fetch delayed jobs')
     .action(async () => {
-    if (!queue) {
-        return console.log(chalk_1.default.red('Need connect before'));
-    }
-    await queue.isReady();
-    deepLog(await queue.getDelayed());
+    await checkQueue();
+    showJobs(await queue.getDelayed());
 });
 vorpal.command('add <data>', 'add job to queue')
     .action(async ({ data }) => {
-    if (!queue) {
-        return console.log(chalk_1.default.red('Need connect before'));
-    }
-    await queue.isReady();
+    await checkQueue();
     queue.add(JSON.parse(data));
 });
 vorpal.command('rm <jobId>', 'remove job by id')
     .action(async ({ jobId }) => {
-    if (!queue) {
-        return console.log(chalk_1.default.red('Need connect before'));
-    }
-    await queue.isReady();
+    await checkQueue();
     const job = await queue.getJob(jobId);
     if (!job) {
         return console.log(chalk_1.default.yellow(`Job "${jobId}" not found`));
@@ -93,10 +76,7 @@ vorpal.command('rm <jobId>', 'remove job by id')
 });
 vorpal.command('retry <jobId>', 'retry job by id')
     .action(async ({ jobId }) => {
-    if (!queue) {
-        return console.log(chalk_1.default.red('Need connect before'));
-    }
-    await queue.isReady();
+    await checkQueue();
     const job = await queue.getJob(jobId);
     if (!job) {
         return console.log(chalk_1.default.yellow(`Job "${jobId}" not found`));
