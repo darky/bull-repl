@@ -14,11 +14,12 @@
   "devDependencies": {
     "@types/bull": "3.5.5",
     "@types/vorpal": "1.11.0",
+    "hashbangify": "0.1.0",
     "ts-node": "8.0.2",
     "typescript": "3.2.4"
   },
   "scripts": {
-    "build": "tsc --build tsconfig.json",
+    "build": "rm index.js; tsc --build tsconfig.json; hashbangify index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
