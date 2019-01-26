@@ -1,0 +1,32 @@
+{
+  "name": "bull-repl",
+  "version": "0.1.0",
+  "description": "Bull queue REPL",
+  "main": "index.js",
+  "bin": {
+    "bull-repl": "node index.js"
+  },
+  "dependencies": {
+    "bull": "3.6.0",
+    "chalk": "2.4.2",
+    "vorpal": "1.12.0"
+  },
+  "devDependencies": {
+    "@types/bull": "3.5.5",
+    "@types/vorpal": "1.11.0",
+    "ts-node": "8.0.2",
+    "typescript": "3.2.4"
+  },
+  "scripts": {
+    "build": "tsc --build tsconfig.json",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "bull",
+    "queue",
+    "repl",
+    "cli"
+  ],
+  "author": "Vladislav Botvin",
+  "license": "MIT"
+}
