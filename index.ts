@@ -1,7 +1,6 @@
 import Queue, { Job, Queue as TQueue } from 'bull';
 import chalk from 'chalk';
 import Vorpal from 'vorpal';
-import { inspect } from 'util';
 
 const vorpal = new Vorpal();
 let queue: TQueue;
