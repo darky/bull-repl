@@ -27,7 +27,8 @@
     "bull",
     "queue",
     "repl",
-    "cli"
+    "cli",
+    "command line"
   ],
   "author": "Vladislav Botvin",
   "license": "MIT"
