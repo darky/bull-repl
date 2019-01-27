@@ -1,6 +1,6 @@
 {
   "name": "bull-repl",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "Bull queue REPL",
   "main": "index.js",
   "bin": {
