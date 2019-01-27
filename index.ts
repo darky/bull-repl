@@ -46,7 +46,7 @@ vorpal.command('connect <queue> [url]', 'connect to bull queue')
     queue = Queue(name, url);
     await queue.isReady();
     console.log(chalk.green(`Connected to ${url}, queue: ${name}`));
-    vorpal.delimiter(`bull-repl@${name}$`).show();
+    vorpal.delimiter(`BULL-REPL | ${name}> `).show();
   });
 
 vorpal.command('stats', 'count of jobs by groups')
@@ -137,4 +137,4 @@ vorpal.command('complete <jobId> <data>', 'complete job')
     console.log(chalk.green(`Job "${jobId}" completed`));
   });
 
-vorpal.delimiter('bull-repl$').show();
+vorpal.delimiter('BULL-REPL> ').show();
