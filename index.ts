@@ -98,7 +98,7 @@ vorpal.command('add <data>', 'add job to queue')
     }
   });
 
-vorpal.command('rm <jobId>', 'remove job by id')
+vorpal.command('rm <jobId>', 'remove job')
   .action(async ({ jobId }) => {
     await checkQueue();
     const job = await getJob(jobId);
@@ -106,7 +106,7 @@ vorpal.command('rm <jobId>', 'remove job by id')
     console.log(chalk.green(`Job "${jobId}" removed`));
   });
 
-vorpal.command('retry <jobId>', 'retry job by id')
+vorpal.command('retry <jobId>', 'retry job')
   .action(async ({ jobId }) => {
     await checkQueue();
     const job = await getJob(jobId);
