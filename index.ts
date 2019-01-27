@@ -89,7 +89,13 @@ vorpal.command('delayed', 'fetch delayed jobs')
 vorpal.command('add <data>', 'add job to queue')
   .action(async ({ data }) => {
     await checkQueue();
-    queue.add(JSON.parse(data));
+    try {
+      queue.add(JSON.parse(data));
+    } catch(e) {
+      let err = new Error();
+      err.stack = chalk.yellow(`Error occured, seems "data" incorrect json`);
+      throw err;
+    }
   });
 
 vorpal.command('rm <jobId>', 'remove job by id')
