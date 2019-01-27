@@ -1,6 +1,6 @@
 # bull-repl
 
-Bull queues REPL.
+Bull queue command line REPL.
 
 ```
 npm install bull-repl -g
