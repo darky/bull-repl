@@ -20,6 +20,16 @@ const checkQueue = async () => {
   return await queue.isReady();
 };
 
+const getJob = async (jobId: string) => {
+  const job = await queue.getJob(jobId);
+  if (!job) {
+    let err = new Error();
+    err.stack = chalk.yellow(`Job "${jobId}" not found`);
+    throw err;
+  }
+  return job;
+};
+
 vorpal.command('connect <queue> [url]', 'connect to bull queue')
   .action(async ({ queue: name, url = 'redis://localhost:6379' }) => {
     queue && queue.close();
@@ -74,10 +84,7 @@ vorpal.command('add <data>', 'add job to queue')
 vorpal.command('rm <jobId>', 'remove job by id')
   .action(async ({ jobId }) => {
     await checkQueue();
-    const job = await queue.getJob(jobId);
-    if (!job) {
-      return console.log(chalk.yellow(`Job "${jobId}" not found`));
-    }
+    const job = await getJob(jobId);
     await job.remove();
     console.log(chalk.green(`Job "${jobId}" removed`));
   });
@@ -85,10 +92,7 @@ vorpal.command('rm <jobId>', 'remove job by id')
 vorpal.command('retry <jobId>', 'retry job by id')
   .action(async ({ jobId }) => {
     await checkQueue();
-    const job = await queue.getJob(jobId);
-    if (!job) {
-      return console.log(chalk.yellow(`Job "${jobId}" not found`));
-    }
+    const job = await getJob(jobId);
     await job.retry();
     console.log(chalk.green(`Job "${jobId}" retried`));
   });
