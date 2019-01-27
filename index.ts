@@ -1,5 +1,4 @@
-import Queue from 'bull';
-import { Queue as TQueue } from 'bull';
+import Queue, { Job, Queue as TQueue } from 'bull';
 import chalk from 'chalk';
 import Vorpal from 'vorpal';
 import { inspect } from 'util';
@@ -7,8 +6,20 @@ import { inspect } from 'util';
 const vorpal = new Vorpal();
 let queue: TQueue;
 
-const showJobs = (arr: Array<object>) => {
-  console.log(inspect(arr, { colors: true }));
+const showJobs = (arr: Array<Job>) => {
+  const data = arr.map(job => ({
+    id: job.id,
+    data: job.data,
+    time: new Date(job.timestamp).toISOString(),
+    name: job.name,
+    failedReason: (job as any).failedReason,
+    stackTrace: job.stacktrace,
+    returnValue: job.returnvalue,
+    attemptsMade: job.attemptsMade,
+    delay: (job as any).delay,
+    progress: (job as any)._progress,
+  }));
+  console.table(data);
 };
 
 const checkQueue = async () => {
