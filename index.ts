@@ -13,8 +13,9 @@ const showJobs = (arr: Array<object>) => {
 
 const checkQueue = async () => {
   if (!queue) {
-    console.log(chalk.red('Need connect before'));
-    return Promise.reject();
+    let err = new Error();
+    err.stack = chalk.yellow('Need connect before');
+    throw err;
   }
   return await queue.isReady();
 };
