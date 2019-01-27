@@ -130,3 +130,4 @@ vorpal.command('complete <jobId> <data>', 'complete job')
     console.log(chalk_1.default.green(`Job "${jobId}" completed`));
 });
 vorpal.delimiter('bull-repl$').show();
+//# sourceMappingURL=index.js.map
