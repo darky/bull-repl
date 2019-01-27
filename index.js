@@ -81,40 +81,59 @@ vorpal.command('delayed', 'fetch delayed jobs')
     showJobs(await queue.getDelayed());
 });
 vorpal.command('add <data>', 'add job to queue')
-    .action(async ({ data }) => {
+    .action(async function ({ data }) {
     await checkQueue();
+    let jobData;
     try {
-        queue.add(JSON.parse(data));
+        jobData = JSON.parse(data);
     }
     catch (e) {
         let err = new Error();
         err.stack = chalk_1.default.yellow(`Error occured, seems "data" incorrect json`);
         throw err;
     }
+    const answer = await this.prompt({ name: 'a', message: 'Complete? (y/n): ' });
+    if (answer.a !== 'y') {
+        return;
+    }
+    await queue.add(jobData);
+    console.log(chalk_1.default.green(`Job added`));
 });
 vorpal.command('rm <jobId>', 'remove job')
-    .action(async ({ jobId }) => {
+    .action(async function ({ jobId }) {
     await checkQueue();
     const job = await getJob(jobId);
+    const answer = await this.prompt({ name: 'a', message: 'Remove? (y/n): ' });
+    if (answer.a !== 'y') {
+        return;
+    }
     await job.remove();
     console.log(chalk_1.default.green(`Job "${jobId}" removed`));
 });
 vorpal.command('retry <jobId>', 'retry job')
-    .action(async ({ jobId }) => {
+    .action(async function ({ jobId }) {
     await checkQueue();
     const job = await getJob(jobId);
+    const answer = await this.prompt({ name: 'a', message: 'Retry? (y/n): ' });
+    if (answer.a !== 'y') {
+        return;
+    }
     await job.retry();
     console.log(chalk_1.default.green(`Job "${jobId}" retried`));
 });
 vorpal.command('fail <jobId> <reason>', 'fail job')
-    .action(async ({ jobId, reason }) => {
+    .action(async function ({ jobId, reason }) {
     await checkQueue();
     const job = await getJob(jobId);
+    const answer = await this.prompt({ name: 'a', message: 'Fail? (y/n): ' });
+    if (answer.a !== 'y') {
+        return;
+    }
     await job.moveToFailed({ message: reason }, true);
     console.log(chalk_1.default.green(`Job "${jobId}" failed`));
 });
 vorpal.command('complete <jobId> <data>', 'complete job')
-    .action(async ({ jobId, data }) => {
+    .action(async function ({ jobId, data }) {
     await checkQueue();
     const job = await getJob(jobId);
     let returnValue;
@@ -125,6 +144,10 @@ vorpal.command('complete <jobId> <data>', 'complete job')
         let err = new Error();
         err.stack = chalk_1.default.yellow(`Error occured, seems "data" incorrect json`);
         throw err;
+    }
+    const answer = await this.prompt({ name: 'a', message: 'Complete? (y/n): ' });
+    if (answer.a !== 'y') {
+        return;
     }
     await job.moveToCompleted(returnValue, true);
     console.log(chalk_1.default.green(`Job "${jobId}" completed`));
