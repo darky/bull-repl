@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@types/bull": "3.5.5",
+    "@types/node": "10.12.18",
     "@types/vorpal": "1.11.0",
     "hashbangify": "0.1.0",
     "ts-node": "8.0.2",
