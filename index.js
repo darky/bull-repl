@@ -8,18 +8,39 @@ Object.defineProperty(exports, "__esModule", { value: true });
 const bull_1 = __importDefault(require("bull"));
 const chalk_1 = __importDefault(require("chalk"));
 const vorpal_1 = __importDefault(require("vorpal"));
-const util_1 = require("util");
 const vorpal = new vorpal_1.default();
 let queue;
 const showJobs = (arr) => {
-    console.log(util_1.inspect(arr, { colors: true }));
+    const data = arr.map(job => ({
+        id: job.id,
+        data: job.data,
+        time: new Date(job.timestamp).toISOString(),
+        name: job.name,
+        failedReason: job.failedReason,
+        stackTrace: job.stacktrace,
+        returnValue: job.returnvalue,
+        attemptsMade: job.attemptsMade,
+        delay: job.delay,
+        progress: job._progress,
+    }));
+    console.table(data);
 };
 const checkQueue = async () => {
     if (!queue) {
-        console.log(chalk_1.default.red('Need connect before'));
-        return Promise.reject();
+        let err = new Error();
+        err.stack = chalk_1.default.yellow('Need connect before');
+        throw err;
     }
     return await queue.isReady();
+};
+const getJob = async (jobId) => {
+    const job = await queue.getJob(jobId);
+    if (!job) {
+        let err = new Error();
+        err.stack = chalk_1.default.yellow(`Job "${jobId}" not found`);
+        throw err;
+    }
+    return job;
 };
 vorpal.command('connect <queue> [url]', 'connect to bull queue')
     .action(async ({ queue: name, url = 'redis://localhost:6379' }) => {
@@ -67,20 +88,14 @@ vorpal.command('add <data>', 'add job to queue')
 vorpal.command('rm <jobId>', 'remove job by id')
     .action(async ({ jobId }) => {
     await checkQueue();
-    const job = await queue.getJob(jobId);
-    if (!job) {
-        return console.log(chalk_1.default.yellow(`Job "${jobId}" not found`));
-    }
+    const job = await getJob(jobId);
     await job.remove();
     console.log(chalk_1.default.green(`Job "${jobId}" removed`));
 });
 vorpal.command('retry <jobId>', 'retry job by id')
     .action(async ({ jobId }) => {
     await checkQueue();
-    const job = await queue.getJob(jobId);
-    if (!job) {
-        return console.log(chalk_1.default.yellow(`Job "${jobId}" not found`));
-    }
+    const job = await getJob(jobId);
     await job.retry();
     console.log(chalk_1.default.green(`Job "${jobId}" retried`));
 });
