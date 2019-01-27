@@ -1,7 +1,7 @@
 {
   "name": "bull-repl",
   "version": "0.3.0",
-  "description": "Bull queue REPL",
+  "description": "Bull queue command line REPL",
   "main": "index.js",
   "bin": {
     "bull-repl": "./index.js"
