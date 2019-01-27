@@ -114,4 +114,28 @@ vorpal.command('retry <jobId>', 'retry job')
     console.log(chalk.green(`Job "${jobId}" retried`));
   });
 
+vorpal.command('fail <jobId> <reason>', 'fail job')
+  .action(async ({ jobId, reason }) => {
+    await checkQueue();
+    const job = await getJob(jobId);
+    await job.moveToFailed({message: reason}, true);
+    console.log(chalk.green(`Job "${jobId}" failed`));
+  });
+
+vorpal.command('complete <jobId> <data>', 'complete job')
+  .action(async ({ jobId, data }) => {
+    await checkQueue();
+    const job = await getJob(jobId);
+    let returnValue;
+    try {
+      returnValue = JSON.parse(data);
+    } catch(e) {
+      let err = new Error();
+      err.stack = chalk.yellow(`Error occured, seems "data" incorrect json`);
+      throw err;
+    }
+    await job.moveToCompleted(returnValue, true);
+    console.log(chalk.green(`Job "${jobId}" completed`));
+  });
+
 vorpal.delimiter('bull-repl$').show();
