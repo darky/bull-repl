@@ -18,7 +18,7 @@ const showJobs = (arr: Array<Job>) => {
     delay: (job as any).delay,
     progress: (job as any)._progress,
   }));
-  console.table(data);
+  console.dir(data, {colors: true, depth: null});
 };
 
 const checkQueue = async () => {
