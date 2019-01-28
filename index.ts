@@ -96,7 +96,7 @@ vorpal.command('add <data>', 'add job to queue')
       err.stack = chalk.yellow(`Error occured, seems "data" incorrect json`);
       throw err;
     }
-    const answer: any = await this.prompt({ name: 'a', message: 'Complete? (y/n): ' });
+    const answer: any = await this.prompt({ name: 'a', message: 'Add? (y/n): ' });
     if (answer.a !== 'y') { return; }
     await queue.add(jobData);
     console.log(chalk.green(`Job added`));
