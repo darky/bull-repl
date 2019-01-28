@@ -7,3 +7,5 @@ npm install bull-repl -g
 bull-repl
 help
 ```
+
+![](/help.png)
