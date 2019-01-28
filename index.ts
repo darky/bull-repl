@@ -1,24 +1,56 @@
 import Queue, { Job, Queue as TQueue } from 'bull';
 import chalk from 'chalk';
+import { table } from 'table';
 import Vorpal, { CommandInstance } from 'vorpal';
+import { inspect } from 'util';
 
 const vorpal = new Vorpal();
 let queue: TQueue;
 
-const showJobs = (arr: Array<Job>) => {
-  const data = arr.map(job => ({
-    id: job.id,
-    data: job.data,
-    time: new Date(job.timestamp).toISOString(),
-    name: job.name,
-    failedReason: (job as any).failedReason,
-    stackTrace: job.stacktrace,
-    returnValue: job.returnvalue,
-    attemptsMade: job.attemptsMade,
-    delay: (job as any).delay,
-    progress: (job as any)._progress,
+const showJobs = (jobs: Array<Job>) => {
+  const data = ([] as Array<string[]>)
+    .concat([[
+      chalk.green('id'),
+      chalk.green('data'),
+      chalk.green('time'),
+      chalk.green('name'),
+      chalk.green('failedReason'),
+      chalk.green('stacktrace'),
+      chalk.green('returnValue'),
+      chalk.green('attemptsMade'),
+      chalk.green('delay'),
+      chalk.green('progress'),
+    ]])
+    .concat(
+      jobs
+        .map(job => ([
+          job.id,
+          job.data,
+          new Date(job.timestamp).toISOString(),
+          job.name,
+          (job as any).failedReason,
+          job.stacktrace,
+          job.returnvalue,
+          job.attemptsMade,
+          (job as any).delay,
+          (job as any)._progress,
+        ]))
+        .map(arr => arr.map(cell => inspect(cell, {colors: true, depth: null})))
+    );
+  console.log(table(data, {
+    columns: {
+      0: {width: 5},
+      1: {width: 20},
+      2: {width: 20},
+      3: {width: 20},
+      4: {width: 20},
+      5: {width: 20},
+      6: {width: 20},
+      7: {width: 4},
+      8: {width: 4},
+      9: {width: 4},
+    }
   }));
-  console.table(data);
 };
 
 const checkQueue = async () => {
