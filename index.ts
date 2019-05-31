@@ -18,7 +18,7 @@ const showJobs = (arr: Array<Job>) => {
     delay: (job as any).delay,
     progress: (job as any)._progress,
   }));
-  console.dir(data, {colors: true, depth: null});
+  console.dir(data, { colors: true, depth: null, maxArrayLength: Infinity });
 };
 
 const checkQueue = async () => {
@@ -91,7 +91,7 @@ vorpal.command('add <data>', 'add job to queue')
     let jobData;
     try {
       jobData = JSON.parse(data);
-    } catch(e) {
+    } catch (e) {
       let err = new Error();
       err.stack = chalk.yellow(`Error occured, seems "data" incorrect json`);
       throw err;
@@ -128,7 +128,7 @@ vorpal.command('fail <jobId> <reason>', 'fail job')
     const job = await getJob(jobId);
     const answer: any = await this.prompt({ name: 'a', message: 'Fail? (y/n): ' });
     if (answer.a !== 'y') { return; }
-    await job.moveToFailed({message: reason}, true);
+    await job.moveToFailed({ message: reason }, true);
     console.log(chalk.green(`Job "${jobId}" failed`));
   });
 
@@ -139,7 +139,7 @@ vorpal.command('complete <jobId> <data>', 'complete job')
     let returnValue;
     try {
       returnValue = JSON.parse(data);
-    } catch(e) {
+    } catch (e) {
       let err = new Error();
       err.stack = chalk.yellow(`Error occured, seems "data" incorrect json`);
       throw err;
@@ -150,4 +150,5 @@ vorpal.command('complete <jobId> <data>', 'complete job')
     console.log(chalk.green(`Job "${jobId}" completed`));
   });
 
+vorpal.history('bull-repl-default');
 vorpal.delimiter('BULL-REPL> ').show();
