@@ -11,17 +11,17 @@
     "bull-repl": "./index.js"
   },
   "dependencies": {
-    "bull": "3.9.1",
+    "bull": "3.10.0",
     "chalk": "2.4.2",
     "vorpal": "1.12.0"
   },
   "devDependencies": {
-    "@types/bull": "3.5.14",
-    "@types/node": "12.0.4",
+    "@types/bull": "3.10.0",
+    "@types/node": "12.6.2",
     "@types/vorpal": "1.11.0",
     "hashbangify": "0.1.0",
-    "ts-node": "8.2.0",
-    "typescript": "3.5.1"
+    "ts-node": "8.3.0",
+    "typescript": "3.5.3"
   },
   "scripts": {
     "build": "rm index.js; tsc --build tsconfig.json; hashbangify index.js",
