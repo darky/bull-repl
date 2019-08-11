@@ -44,9 +44,10 @@ const getJob = async (jobId: string) => {
 
 vorpal
   .command("connect <queue> [url]", "connect to bull queue")
-  .action(async ({ queue: name, url = "redis://localhost:6379" }) => {
+  .option("-p, --prefix <prefix>", "prefix to use for all queue jobs")
+  .action(async ({ queue: name, url = "redis://localhost:6379", options }) => {
     queue && queue.close();
-    queue = Queue(name, url);
+    queue = Queue(name, url, options);
     await queue.isReady();
     console.log(chalk.green(`Connected to ${url}, queue: ${name}`));
     vorpal.delimiter(`BULL-REPL | ${name}> `).show();
