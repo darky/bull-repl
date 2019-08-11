@@ -49,8 +49,11 @@ vorpal
     queue && queue.close();
     queue = Queue(name, url, options);
     await queue.isReady();
-    console.log(chalk.green(`Connected to ${url}, queue: ${name}`));
-    vorpal.delimiter(`BULL-REPL | ${name}> `).show();
+    const prefix = options.prefix || "bull";
+    console.log(
+      chalk.green(`Connected to ${url}, prefix: ${prefix}, queue: ${name}`)
+    );
+    vorpal.delimiter(`BULL-REPL | ${prefix}.${name}> `).show();
   });
 
 vorpal.command("stats", "count of jobs by groups").action(async () => {
