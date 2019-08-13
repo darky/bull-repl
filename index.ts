@@ -88,7 +88,8 @@ vorpal.command("delayed", "fetch delayed jobs").action(async () => {
 
 vorpal
   .command("add <data>", "add job to queue")
-  .action(async function(this: CommandInstance, { data }) {
+  .option("-n, --name <name>", "name for named job")
+  .action(async function(this: CommandInstance, { data, options }) {
     await checkQueue();
     let jobData;
     try {
@@ -105,8 +106,13 @@ vorpal
     if (answer.a !== "y") {
       return;
     }
-    await queue.add(jobData);
-    console.log(chalk.green(`Job added`));
+    if (options.name) {
+      await queue.add(options.name, jobData);
+      console.log(chalk.green(`Job with name '${options.name}' added`));
+    } else {
+      await queue.add(jobData);
+      console.log(chalk.green(`Job added`));
+    }
   });
 
 vorpal
