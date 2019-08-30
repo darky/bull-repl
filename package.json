@@ -23,7 +23,7 @@
     "typescript": "3.6.2"
   },
   "scripts": {
-    "build": "rm index.js; tsc --build tsconfig.json; sed -i '1 i #!/usr/bin/env node' index.js; chmod +x index.js",
+    "build": "rm index.js; tsc --build tsconfig.json; gsed -i '1 i #!/usr/bin/env node' index.js; chmod +x index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "keywords": [
