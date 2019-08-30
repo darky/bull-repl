@@ -17,10 +17,10 @@
   },
   "devDependencies": {
     "@types/bull": "3.10.2",
-    "@types/node": "12.7.1",
+    "@types/node": "12.7.3",
     "@types/vorpal": "1.11.0",
     "ts-node": "8.3.0",
-    "typescript": "3.5.3"
+    "typescript": "3.6.2"
   },
   "scripts": {
     "build": "rm index.js; tsc --build tsconfig.json; sed -i '1 i #!/usr/bin/env node' index.js; chmod +x index.js",
