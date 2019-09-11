@@ -2,7 +2,7 @@ import Queue, { Job, Queue as TQueue } from "bull";
 import chalk from "chalk";
 import Vorpal, { CommandInstance } from "vorpal";
 
-const vorpal = new Vorpal();
+export const vorpal = new Vorpal();
 let queue: TQueue;
 
 const showJobs = (arr: Array<Job>) => {
