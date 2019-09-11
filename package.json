@@ -7,9 +7,14 @@
     "url": "git://github.com/darky/bull-repl.git"
   },
   "main": "index.js",
+  "types": "index.d.ts",
   "bin": {
     "bull-repl": "./index.js"
   },
+  "files": [
+    "index.js",
+    "index.d.ts"
+  ],
   "dependencies": {
     "bull": "3.10.0",
     "chalk": "2.4.2",
