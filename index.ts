@@ -1,17 +1,18 @@
+/// <reference types="./typing" />
+
 import Queue, { Job, Queue as TQueue } from "bull";
 import chalk from "chalk";
 import Vorpal, { CommandInstance } from "vorpal";
+import { matchArray } from "searchjs";
 
 export const vorpal = new Vorpal();
 let queue: TQueue;
 
-const showJobs = (arr: Array<Job>) => {
+const showJobs = (arr: Array<Job>, filter: object) => {
   const data = arr.map(job => ({
     id: job.id,
     data: job.data,
-    time: Number.isNaN(job.timestamp)
-      ? job.timestamp
-      : new Date(job.timestamp).toISOString(),
+    time: Number.isNaN(job.timestamp) ? job.timestamp : new Date(job.timestamp),
     name: job.name,
     failedReason: (job as any).failedReason,
     stackTrace: job.stacktrace,
@@ -20,7 +21,12 @@ const showJobs = (arr: Array<Job>) => {
     delay: (job as any).delay,
     progress: (job as any)._progress
   }));
-  console.dir(data, { colors: true, depth: null, maxArrayLength: Infinity });
+  const filteredData = matchArray(data, filter);
+  console.dir(filteredData, {
+    colors: true,
+    depth: null,
+    maxArrayLength: Infinity
+  });
 };
 
 const checkQueue = async () => {
@@ -42,6 +48,20 @@ const getJob = async (jobId: string) => {
   return job;
 };
 
+const getFilter = (filter?: string) => {
+  return new Promise<object>(resolve => {
+    try {
+      resolve(JSON.parse(filter || "{}"));
+    } catch (e) {
+      let err = new Error();
+      err.stack = chalk.yellow(
+        `Error occured, seems passed "filter" incorrect json`
+      );
+      throw err;
+    }
+  });
+};
+
 vorpal
   .command("connect <queue> [url]", "connect to bull queue")
   .option("-p, --prefix <prefix>", "prefix to use for all queue jobs")
@@ -61,30 +81,50 @@ vorpal.command("stats", "count of jobs by groups").action(async () => {
   console.table(await queue.getJobCounts());
 });
 
-vorpal.command("active", "fetch active jobs").action(async () => {
-  await checkQueue();
-  showJobs(await queue.getActive());
-});
+vorpal
+  .command("active", "fetch active jobs")
+  .option("-f, --filter <filter>", "filter jobs via searchjs")
+  .action(async ({ options }) => {
+    await checkQueue();
+    const filter = await getFilter(options.filter);
+    showJobs(await queue.getActive(), filter);
+  });
 
-vorpal.command("waiting", "fetch waiting jobs").action(async () => {
-  await checkQueue();
-  showJobs(await queue.getWaiting());
-});
+vorpal
+  .command("waiting", "fetch waiting jobs")
+  .option("-f, --filter <filter>", "filter jobs via searchjs")
+  .action(async ({ options }) => {
+    await checkQueue();
+    const filter = await getFilter(options.filter);
+    showJobs(await queue.getWaiting(), filter);
+  });
 
-vorpal.command("completed", "fetch completed jobs").action(async () => {
-  await checkQueue();
-  showJobs(await queue.getCompleted());
-});
+vorpal
+  .command("completed", "fetch completed jobs")
+  .option("-f, --filter <filter>", "filter jobs via searchjs")
+  .action(async ({ options }) => {
+    await checkQueue();
+    const filter = await getFilter(options.filter);
+    showJobs(await queue.getCompleted(), filter);
+  });
 
-vorpal.command("failed", "fetch failed jobs").action(async () => {
-  await checkQueue();
-  showJobs(await queue.getFailed());
-});
+vorpal
+  .command("failed", "fetch failed jobs")
+  .option("-f, --filter <filter>", "filter jobs via searchjs")
+  .action(async ({ options }) => {
+    await checkQueue();
+    const filter = await getFilter(options.filter);
+    showJobs(await queue.getFailed(), filter);
+  });
 
-vorpal.command("delayed", "fetch delayed jobs").action(async () => {
-  await checkQueue();
-  showJobs(await queue.getDelayed());
-});
+vorpal
+  .command("delayed", "fetch delayed jobs")
+  .option("-f, --filter <filter>", "filter jobs via searchjs")
+  .action(async ({ options }) => {
+    await checkQueue();
+    const filter = await getFilter(options.filter);
+    showJobs(await queue.getDelayed(), filter);
+  });
 
 vorpal
   .command("add <data>", "add job to queue")
