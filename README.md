@@ -15,11 +15,11 @@ help
     exit                             Exits application.
     connect [options] <queue> [url]  connect to bull queue
     stats                            count of jobs by groups
-    active                           fetch active jobs
-    waiting                          fetch waiting jobs
-    completed                        fetch completed jobs
-    failed                           fetch failed jobs
-    delayed                          fetch delayed jobs
+    active [options]                 fetch active jobs
+    waiting [options]                fetch waiting jobs
+    completed [options]              fetch completed jobs
+    failed [options]                 fetch failed jobs
+    delayed [options]                fetch delayed jobs
     add [options] <data>             add job to queue
     rm <jobId>                       remove job
     retry <jobId>                    retry job
