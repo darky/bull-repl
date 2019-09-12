@@ -4,6 +4,7 @@ import Queue, { Job, Queue as TQueue } from "bull";
 import chalk from "chalk";
 import Vorpal, { CommandInstance } from "vorpal";
 import { matchArray } from "searchjs";
+import terminalLink from "terminal-link";
 
 export const vorpal = new Vorpal();
 let queue: TQueue;
@@ -62,6 +63,11 @@ const getFilter = (filter?: string) => {
   });
 };
 
+const searchjsLink = terminalLink(
+  "searchjs",
+  "https://github.com/deitch/searchjs#examples"
+);
+
 vorpal
   .command("connect <queue>", "connect to bull queue")
   .option("-p, --prefix <prefix>", "prefix to use for all queue jobs")
@@ -87,7 +93,7 @@ vorpal.command("stats", "count of jobs by groups").action(async () => {
 
 vorpal
   .command("active", "fetch active jobs")
-  .option("-f, --filter <filter>", "filter jobs via searchjs")
+  .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .action(async ({ options }) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
@@ -96,7 +102,7 @@ vorpal
 
 vorpal
   .command("waiting", "fetch waiting jobs")
-  .option("-f, --filter <filter>", "filter jobs via searchjs")
+  .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .action(async ({ options }) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
@@ -105,7 +111,7 @@ vorpal
 
 vorpal
   .command("completed", "fetch completed jobs")
-  .option("-f, --filter <filter>", "filter jobs via searchjs")
+  .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .action(async ({ options }) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
@@ -114,7 +120,7 @@ vorpal
 
 vorpal
   .command("failed", "fetch failed jobs")
-  .option("-f, --filter <filter>", "filter jobs via searchjs")
+  .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .action(async ({ options }) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
@@ -123,7 +129,7 @@ vorpal
 
 vorpal
   .command("delayed", "fetch delayed jobs")
-  .option("-f, --filter <filter>", "filter jobs via searchjs")
+  .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .action(async ({ options }) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
