@@ -293,7 +293,17 @@ vorpal
       return console.log(chalk.yellow("Incorrect period"));
     }
     const status = options.status || "completed";
-    await queue.clean(grace, status);
+    if (
+      !["completed", "wait", "active", "delayed", "failed"].includes(status)
+    ) {
+      return console.log(
+        chalk.yellow(
+          "Incorrect status, should be: completed or wait or active or delayed or failed"
+        )
+      );
+    }
+    const limit = Number.isInteger(options.limit) ? options.limit : void 0;
+    await queue.clean(grace, status, limit);
     console.log(chalk.green(`Jobs cleaned`));
   });
 
