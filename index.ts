@@ -63,10 +63,14 @@ const getFilter = (filter?: string) => {
 };
 
 vorpal
-  .command("connect <queue> [url]", "connect to bull queue")
+  .command("connect <queue>", "connect to bull queue")
   .option("-p, --prefix <prefix>", "prefix to use for all queue jobs")
-  .action(async ({ queue: name, url = "redis://localhost:6379", options }) => {
+  .option("-r, --redis <redis>", "host:port of redis, default localhost:6379")
+  .action(async ({ queue: name, options }) => {
     queue && queue.close();
+    const url = options.redis
+      ? `redis://${options.redis}`
+      : "redis://localhost:6379";
     queue = Queue(name, url, options);
     await queue.isReady();
     const prefix = options.prefix || "bull";
