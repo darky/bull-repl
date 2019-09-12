@@ -25,4 +25,6 @@ help
     retry <jobId>              retry job
     fail <jobId> <reason>      fail job
     complete <jobId> <data>    complete job
+    clean [options] <period>   Clean queue for period ago, period format - ms
+                               (​https://github.com/zeit/ms#examples​)
 ```
