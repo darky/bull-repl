@@ -266,5 +266,36 @@ vorpal
     console.log(chalk.green(`Job "${jobId}" completed`));
   });
 
+vorpal
+  .command(
+    "clean <period>",
+    `Clean queue for period ago, period format - ${msLink}`
+  )
+  .option(
+    "-s, --status <status>",
+    "Status of the job to clean, default: completed"
+  )
+  .option(
+    "-l, --limit <limit>",
+    "Maximum amount of jobs to clean per call, default: all"
+  )
+  .action(async function(this: CommandInstance, { period, options }) {
+    await checkQueue();
+    const answer: any = await this.prompt({
+      name: "a",
+      message: "Clean? (y/n): "
+    });
+    if (answer.a !== "y") {
+      return;
+    }
+    const grace = period && period.length ? ms(period as string) : void 0;
+    if (!grace) {
+      return console.log(chalk.yellow("Incorrect period"));
+    }
+    const status = options.status || "completed";
+    await queue.clean(grace, status);
+    console.log(chalk.green(`Jobs cleaned`));
+  });
+
 vorpal.history("bull-repl-default");
 vorpal.delimiter("BULL-REPL> ").show();
