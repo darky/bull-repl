@@ -5,6 +5,7 @@ import chalk from "chalk";
 import Vorpal, { CommandInstance } from "vorpal";
 import { matchArray } from "searchjs";
 import terminalLink from "terminal-link";
+import ms from "ms";
 
 export const vorpal = new Vorpal();
 let queue: TQueue;
@@ -63,10 +64,28 @@ const getFilter = (filter?: string) => {
   });
 };
 
+const getTimeAgoFilter = (timeAgo?: string) => {
+  return new Promise<object>(resolve => {
+    try {
+      const msAgo = timeAgo && timeAgo.length ? ms(timeAgo) : void 0;
+      const filter = msAgo ? { time: { gte: Date.now() - msAgo } } : {};
+      resolve(filter);
+    } catch (e) {
+      let err = new Error();
+      err.stack = chalk.yellow(
+        `Error occured, seems passed "timeAgo" incorrect`
+      );
+      throw err;
+    }
+  });
+};
+
 const searchjsLink = terminalLink(
   "searchjs",
   "https://github.com/deitch/searchjs#examples"
 );
+
+const msLink = terminalLink("ms", "https://github.com/zeit/ms#examples");
 
 vorpal
   .command("connect <queue>", "connect to bull queue")
@@ -94,46 +113,56 @@ vorpal.command("stats", "count of jobs by groups").action(async () => {
 vorpal
   .command("active", "fetch active jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
+  .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .action(async ({ options }) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
-    showJobs(await queue.getActive(), filter);
+    const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
+    showJobs(await queue.getActive(), { ...filter, ...timeAgoFilter });
   });
 
 vorpal
   .command("waiting", "fetch waiting jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
+  .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .action(async ({ options }) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
-    showJobs(await queue.getWaiting(), filter);
+    const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
+    showJobs(await queue.getWaiting(), { ...filter, ...timeAgoFilter });
   });
 
 vorpal
   .command("completed", "fetch completed jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
+  .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .action(async ({ options }) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
-    showJobs(await queue.getCompleted(), filter);
+    const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
+    showJobs(await queue.getCompleted(), { ...filter, ...timeAgoFilter });
   });
 
 vorpal
   .command("failed", "fetch failed jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
+  .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .action(async ({ options }) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
-    showJobs(await queue.getFailed(), filter);
+    const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
+    showJobs(await queue.getFailed(), { ...filter, ...timeAgoFilter });
   });
 
 vorpal
   .command("delayed", "fetch delayed jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
+  .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .action(async ({ options }) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
-    showJobs(await queue.getDelayed(), filter);
+    const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
+    showJobs(await queue.getDelayed(), { ...filter, ...timeAgoFilter });
   });
 
 vorpal
