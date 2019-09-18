@@ -13,7 +13,8 @@
   },
   "files": [
     "index.js",
-    "index.d.ts"
+    "index.d.ts",
+    "src/*.js"
   ],
   "dependencies": {
     "bull": "3.11.0",
