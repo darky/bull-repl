@@ -19,7 +19,6 @@ import {
   LogsParams,
   LogParams
 } from "./src/types";
-import Queue, { Queue as TQueue } from "bull";
 import chalk from "chalk";
 import Vorpal, { CommandInstance } from "vorpal";
 import ms from "ms";
@@ -29,43 +28,23 @@ import {
   getTimeAgoFilter,
   searchjsLink,
   msLink,
-  logArray
+  logArray,
+  getJob
 } from "./src/utils";
+import { getQueue, setQueue } from "./src/queue";
 
 export const vorpal = new Vorpal();
-let queue: TQueue;
-
-const checkQueue = async () => {
-  if (!queue) {
-    let err = new Error();
-    err.stack = chalk.yellow("Need connect before");
-    throw err;
-  }
-  return await queue.isReady();
-};
-
-const getJob = async (jobId: string) => {
-  const job = await queue.getJob(jobId);
-  if (!job) {
-    let err = new Error();
-    err.stack = chalk.yellow(`Job "${jobId}" not found`);
-    throw err;
-  }
-  return job;
-};
 
 vorpal
   .command("connect <queue>", "connect to bull queue")
   .option("-p, --prefix <prefix>", "prefix to use for all queue jobs")
   .option("-r, --redis <redis>", "host:port of redis, default localhost:6379")
   .action((async ({ queue: name, options }: ConnectParams) => {
-    queue && queue.close();
     const url = options.redis
       ? `redis://${options.redis}`
       : "redis://localhost:6379";
-    queue = Queue(name, url, { prefix: options.prefix });
-    await queue.isReady();
     const prefix = options.prefix || "bull";
+    await setQueue(name, url, { prefix });
     console.log(
       chalk.green(`Connected to ${url}, prefix: ${prefix}, queue: ${name}`)
     );
@@ -73,7 +52,7 @@ vorpal
   }) as any);
 
 vorpal.command("stats", "count of jobs by groups").action(async () => {
-  await checkQueue();
+  const queue = await getQueue();
   console.table(await queue.getJobCounts());
 });
 
@@ -82,7 +61,7 @@ vorpal
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .action(async ({ options }: ActiveParams) => {
-    await checkQueue();
+    const queue = await getQueue();
     const filter = await getFilter(options.filter);
     const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
     showJobs(await queue.getActive(), { ...filter, ...timeAgoFilter });
@@ -93,7 +72,7 @@ vorpal
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .action(async ({ options }: WaitingParams) => {
-    await checkQueue();
+    const queue = await getQueue();
     const filter = await getFilter(options.filter);
     const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
     showJobs(await queue.getWaiting(), { ...filter, ...timeAgoFilter });
@@ -104,7 +83,7 @@ vorpal
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .action(async ({ options }: CompletedParams) => {
-    await checkQueue();
+    const queue = await getQueue();
     const filter = await getFilter(options.filter);
     const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
     showJobs(await queue.getCompleted(), { ...filter, ...timeAgoFilter });
@@ -115,7 +94,7 @@ vorpal
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .action(async ({ options }: FailedParams) => {
-    await checkQueue();
+    const queue = await getQueue();
     const filter = await getFilter(options.filter);
     const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
     showJobs(await queue.getFailed(), { ...filter, ...timeAgoFilter });
@@ -126,7 +105,7 @@ vorpal
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .action(async ({ options }: DelayedParams) => {
-    await checkQueue();
+    const queue = await getQueue();
     const filter = await getFilter(options.filter);
     const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
     showJobs(await queue.getDelayed(), { ...filter, ...timeAgoFilter });
@@ -135,7 +114,7 @@ vorpal
 vorpal.command("get <jobId>", "get job").action((async ({
   jobId
 }: GetParams) => {
-  await checkQueue();
+  await getQueue();
   const job = await getJob(jobId);
   showJobs([job], {});
 }) as any);
@@ -144,7 +123,7 @@ vorpal
   .command("add <data>", "add job to queue")
   .option("-n, --name <name>", "name for named job")
   .action(async function(this: CommandInstance, { data, options }: AddParams) {
-    await checkQueue();
+    const queue = await getQueue();
     let jobData: object;
     try {
       jobData = JSON.parse(data);
@@ -170,7 +149,7 @@ vorpal
 vorpal
   .command("rm <jobId>", "remove job")
   .action(async function(this: CommandInstance, { jobId }: RmParams) {
-    await checkQueue();
+    await getQueue();
     const job = await getJob(jobId);
     const answer = (await this.prompt({
       name: "a",
@@ -186,7 +165,7 @@ vorpal
 vorpal
   .command("retry <jobId>", "retry job")
   .action(async function(this: CommandInstance, { jobId }: RetryParams) {
-    await checkQueue();
+    await getQueue();
     const job = await getJob(jobId);
     const answer = (await this.prompt({
       name: "a",
@@ -202,7 +181,7 @@ vorpal
 vorpal
   .command("promote <jobId>", "promote job")
   .action(async function(this: CommandInstance, { jobId }: PromoteParams) {
-    await checkQueue();
+    await getQueue();
     const job = await getJob(jobId);
     const answer = (await this.prompt({
       name: "a",
@@ -218,7 +197,7 @@ vorpal
 vorpal
   .command("fail <jobId> <reason>", "fail job")
   .action(async function(this: CommandInstance, { jobId, reason }: FailParams) {
-    await checkQueue();
+    await getQueue();
     const job = await getJob(jobId);
     const answer = (await this.prompt({
       name: "a",
@@ -237,7 +216,7 @@ vorpal
     this: CommandInstance,
     { jobId, data }: CompleteParams
   ) {
-    await checkQueue();
+    await getQueue();
     const job = await getJob(jobId);
     let returnValue: string;
     try {
@@ -275,7 +254,7 @@ vorpal
     this: CommandInstance,
     { period, options }: CleanParams
   ) {
-    await checkQueue();
+    const queue = await getQueue();
     const answer = (await this.prompt({
       name: "a",
       message: "Clean? (y/n): "
@@ -309,7 +288,7 @@ vorpal
   .option("-s, --start <start>", "Start of logs")
   .option("-e, --end <end>", "End of logs")
   .action((async ({ jobId, options }: LogsParams) => {
-    await checkQueue();
+    const queue = await getQueue();
     const { logs, count } = await queue.getJobLogs(
       jobId,
       options.start,
@@ -325,7 +304,7 @@ vorpal
 vorpal
   .command("log <jobId> <data>", "add log to job")
   .action(async function(this: CommandInstance, { jobId, data }: LogParams) {
-    await checkQueue();
+    await getQueue();
     const job = await getJob(jobId);
     const answer = (await this.prompt({
       name: "a",

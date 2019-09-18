@@ -4,6 +4,18 @@ import { matchArray } from "searchjs";
 import chalk from "chalk";
 import ms from "ms";
 import terminalLink from "terminal-link";
+import { getQueue } from "./queue";
+
+export const getJob = async (jobId: string) => {
+  const queue = await getQueue();
+  const job = await queue.getJob(jobId);
+  if (!job) {
+    let err = new Error();
+    err.stack = chalk.yellow(`Job "${jobId}" not found`);
+    throw err;
+  }
+  return job;
+};
 
 export const showJobs = (arr: Array<Job>, filter: object) => {
   const jobs = arr as Array<Job & JobAdditional>;
