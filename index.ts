@@ -189,13 +189,11 @@ vorpal
     if (answer.a !== "y") {
       return;
     }
-    if (options.name) {
-      await queue.add(options.name, jobData);
-      console.log(chalk.green(`Job with name '${options.name}' added`));
-    } else {
-      await queue.add(jobData);
-      console.log(chalk.green(`Job added`));
-    }
+    const jobName: string = options.name || "__default__";
+    const addedJob = await queue.add(jobName, jobData);
+    console.log(
+      chalk.green(`Job with name '${jobName}', id '${addedJob.id}' added`)
+    );
   });
 
 vorpal
