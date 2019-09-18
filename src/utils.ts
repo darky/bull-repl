@@ -11,9 +11,7 @@ export const getJob = async (jobId: string) => {
   const queue = await getQueue();
   const job = await queue.getJob(jobId);
   if (!job) {
-    let err = new Error();
-    err.stack = chalk.yellow(`Job "${jobId}" not found`);
-    throw err;
+    return throwYellow(`Job "${jobId}" not found`);
   }
   return job;
 };
@@ -41,11 +39,7 @@ export const getFilter = (filter?: string) => {
     try {
       resolve(JSON.parse(filter || "{}"));
     } catch (e) {
-      let err = new Error();
-      err.stack = chalk.yellow(
-        `Error occured, seems passed "filter" incorrect json`
-      );
-      throw err;
+      throwYellow(`Error occured, seems passed "filter" incorrect json`);
     }
   });
 };
@@ -57,11 +51,7 @@ export const getTimeAgoFilter = (timeAgo?: string) => {
       const filter = msAgo ? { time: { gte: Date.now() - msAgo } } : {};
       resolve(filter);
     } catch (e) {
-      let err = new Error();
-      err.stack = chalk.yellow(
-        `Error occured, seems passed "timeAgo" incorrect`
-      );
-      throw err;
+      throwYellow(`Error occured, seems passed "timeAgo" incorrect`);
     }
   });
 };
@@ -87,8 +77,16 @@ export const answer = async (vorpal: Vorpal, question: string) => {
     message: `${question}? (y/n): `
   })) as Answer;
   if (answer.a !== "y") {
-    let err = new Error();
-    err.stack = chalk.yellow("You cancel action");
-    throw err;
+    throwYellow("You cancel action");
   }
+};
+
+export const logGreen = (msg: string) => {
+  console.log(chalk.green(msg));
+};
+
+export const throwYellow = (msg: string): never => {
+  let err = new Error();
+  err.stack = chalk.yellow(msg);
+  throw err;
 };

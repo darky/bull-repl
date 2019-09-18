@@ -18,7 +18,6 @@ import {
   LogsParams,
   LogParams
 } from "./src/types";
-import chalk from "chalk";
 import Vorpal from "vorpal";
 import ms from "ms";
 import {
@@ -29,7 +28,9 @@ import {
   msLink,
   logArray,
   getJob,
-  answer
+  answer,
+  logGreen,
+  throwYellow
 } from "./src/utils";
 import { getQueue, setQueue } from "./src/queue";
 
@@ -45,9 +46,7 @@ vorpal
       : "redis://localhost:6379";
     const prefix = options.prefix || "bull";
     await setQueue(name, url, { prefix });
-    console.log(
-      chalk.green(`Connected to ${url}, prefix: ${prefix}, queue: ${name}`)
-    );
+    logGreen(`Connected to ${url}, prefix: ${prefix}, queue: ${name}`);
     vorpal.delimiter(`BULL-REPL | ${prefix}.${name}> `).show();
   }) as any);
 
@@ -128,16 +127,12 @@ vorpal
     try {
       jobData = JSON.parse(data);
     } catch (e) {
-      let err = new Error();
-      err.stack = chalk.yellow(`Error occured, seems "data" incorrect json`);
-      throw err;
+      return throwYellow(`Error occured, seems "data" incorrect json`);
     }
     await answer(vorpal, "Add");
     const jobName: string = options.name || "__default__";
     const addedJob = await queue.add(jobName, jobData);
-    console.log(
-      chalk.green(`Job with name '${jobName}', id '${addedJob.id}' added`)
-    );
+    logGreen(`Job with name '${jobName}', id '${addedJob.id}' added`);
   } as any);
 
 vorpal
@@ -147,7 +142,7 @@ vorpal
     const job = await getJob(jobId);
     await answer(vorpal, "Remove");
     await job.remove();
-    console.log(chalk.green(`Job "${jobId}" removed`));
+    logGreen(`Job "${jobId}" removed`);
   } as any);
 
 vorpal
@@ -157,7 +152,7 @@ vorpal
     const job = await getJob(jobId);
     await answer(vorpal, "Retry");
     await job.retry();
-    console.log(chalk.green(`Job "${jobId}" retried`));
+    logGreen(`Job "${jobId}" retried`);
   } as any);
 
 vorpal
@@ -167,7 +162,7 @@ vorpal
     const job = await getJob(jobId);
     await answer(vorpal, "Promote");
     await job.promote();
-    console.log(chalk.green(`Job "${jobId}" promoted`));
+    logGreen(`Job "${jobId}" promoted`);
   } as any);
 
 vorpal
@@ -177,7 +172,7 @@ vorpal
     const job = await getJob(jobId);
     await answer(vorpal, "Fail");
     await job.moveToFailed({ message: reason }, true);
-    console.log(chalk.green(`Job "${jobId}" failed`));
+    logGreen(`Job "${jobId}" failed`);
   } as any);
 
 vorpal
@@ -189,13 +184,11 @@ vorpal
     try {
       returnValue = JSON.parse(data);
     } catch (e) {
-      let err = new Error();
-      err.stack = chalk.yellow(`Error occured, seems "data" incorrect json`);
-      throw err;
+      return throwYellow(`Error occured, seems "data" incorrect json`);
     }
     await answer(vorpal, "Complete");
     await job.moveToCompleted(returnValue, true);
-    console.log(chalk.green(`Job "${jobId}" completed`));
+    logGreen(`Job "${jobId}" completed`);
   } as any);
 
 vorpal
@@ -216,23 +209,21 @@ vorpal
     await answer(vorpal, "Clean");
     const grace = period && period.length ? ms(period as string) : void 0;
     if (!grace) {
-      return console.log(chalk.yellow("Incorrect period"));
+      return throwYellow("Incorrect period");
     }
     const status = options.status || "completed";
     if (
       !["completed", "wait", "active", "delayed", "failed"].includes(status)
     ) {
-      return console.log(
-        chalk.yellow(
-          "Incorrect status, should be: completed or wait or active or delayed or failed"
-        )
+      return throwYellow(
+        "Incorrect status, should be: completed or wait or active or delayed or failed"
       );
     }
     const limit = Number.isInteger(options.limit as number)
       ? options.limit
       : void 0;
     await queue.clean(grace, status, limit);
-    console.log(chalk.green(`Jobs cleaned`));
+    logGreen(`Jobs cleaned`);
   } as any);
 
 vorpal
@@ -260,7 +251,7 @@ vorpal
     const job = await getJob(jobId);
     await answer(vorpal, "Add log");
     await job.log(data);
-    console.log(chalk.green("Log added to job"));
+    logGreen("Log added to job");
   } as any);
 
 vorpal.history("bull-repl-default");
