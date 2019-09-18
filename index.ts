@@ -1,7 +1,6 @@
-/// <reference types="./typing" />
+/// <reference types="./src/typing" />
 
 import {
-  JobAdditional,
   ConnectParams,
   ActiveParams,
   WaitingParams,
@@ -19,34 +18,22 @@ import {
   CleanParams,
   LogsParams,
   LogParams
-} from "./types";
-import Queue, { Job, Queue as TQueue } from "bull";
+} from "./src/types";
+import Queue, { Queue as TQueue } from "bull";
 import chalk from "chalk";
 import Vorpal, { CommandInstance } from "vorpal";
-import { matchArray } from "searchjs";
-import terminalLink from "terminal-link";
 import ms from "ms";
+import {
+  showJobs,
+  getFilter,
+  getTimeAgoFilter,
+  searchjsLink,
+  msLink,
+  logArray
+} from "./src/utils";
 
 export const vorpal = new Vorpal();
 let queue: TQueue;
-
-const showJobs = (arr: Array<Job>, filter: object) => {
-  const jobs = arr as Array<Job & JobAdditional>;
-  const data = jobs.map(job => ({
-    id: job.id,
-    data: (job as JobAdditional).data,
-    time: Number.isNaN(job.timestamp) ? job.timestamp : new Date(job.timestamp),
-    name: job.name,
-    failedReason: job.failedReason,
-    stackTrace: job.stacktrace,
-    returnValue: (job as JobAdditional).returnvalue,
-    attemptsMade: job.attemptsMade,
-    delay: job.delay,
-    progress: job._progress
-  }));
-  const filteredData = matchArray(data, filter);
-  logArray(filteredData);
-};
 
 const checkQueue = async () => {
   if (!queue) {
@@ -66,51 +53,6 @@ const getJob = async (jobId: string) => {
   }
   return job;
 };
-
-const getFilter = (filter?: string) => {
-  return new Promise<object>(resolve => {
-    try {
-      resolve(JSON.parse(filter || "{}"));
-    } catch (e) {
-      let err = new Error();
-      err.stack = chalk.yellow(
-        `Error occured, seems passed "filter" incorrect json`
-      );
-      throw err;
-    }
-  });
-};
-
-const getTimeAgoFilter = (timeAgo?: string) => {
-  return new Promise<object>(resolve => {
-    try {
-      const msAgo = timeAgo && timeAgo.length ? ms(timeAgo) : void 0;
-      const filter = msAgo ? { time: { gte: Date.now() - msAgo } } : {};
-      resolve(filter);
-    } catch (e) {
-      let err = new Error();
-      err.stack = chalk.yellow(
-        `Error occured, seems passed "timeAgo" incorrect`
-      );
-      throw err;
-    }
-  });
-};
-
-const logArray = (arr: Array<unknown>) => {
-  console.dir(arr, {
-    colors: true,
-    depth: null,
-    maxArrayLength: Infinity
-  });
-};
-
-const searchjsLink = terminalLink(
-  "searchjs",
-  "https://github.com/deitch/searchjs#examples"
-);
-
-const msLink = terminalLink("ms", "https://github.com/zeit/ms#examples");
 
 vorpal
   .command("connect <queue>", "connect to bull queue")
