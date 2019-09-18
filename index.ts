@@ -351,9 +351,16 @@ vorpal
 
 vorpal
   .command("log <jobId> <data>", "add log to job")
-  .action(async ({ jobId, data }) => {
+  .action(async function(this: CommandInstance, { jobId, data }) {
     await checkQueue();
     const job = await getJob(jobId);
+    const answer: any = await this.prompt({
+      name: "a",
+      message: "Add log? (y/n): "
+    });
+    if (answer.a !== "y") {
+      return;
+    }
     await job.log(data);
     console.log(chalk.green("Log added to job"));
   });
