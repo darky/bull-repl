@@ -23,6 +23,7 @@ help
     add [options] <data>       add job to queue
     rm <jobId>                 remove job
     retry <jobId>              retry job
+    promote <jobId>            promote job
     fail <jobId> <reason>      fail job
     complete <jobId> <data>    complete job
     clean [options] <period>   Clean queue for period ago, period format - ms
