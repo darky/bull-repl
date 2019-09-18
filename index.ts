@@ -19,7 +19,7 @@ import {
   LogParams
 } from "./src/types";
 import chalk from "chalk";
-import Vorpal, { CommandInstance } from "vorpal";
+import Vorpal from "vorpal";
 import ms from "ms";
 import {
   showJobs,
@@ -122,7 +122,7 @@ vorpal.command("get <jobId>", "get job").action((async ({
 vorpal
   .command("add <data>", "add job to queue")
   .option("-n, --name <name>", "name for named job")
-  .action(async function(this: CommandInstance, { data, options }: AddParams) {
+  .action(async function({ data, options }: AddParams) {
     const queue = await getQueue();
     let jobData: object;
     try {
@@ -142,7 +142,7 @@ vorpal
 
 vorpal
   .command("rm <jobId>", "remove job")
-  .action(async function(this: CommandInstance, { jobId }: RmParams) {
+  .action(async function({ jobId }: RmParams) {
     await getQueue();
     const job = await getJob(jobId);
     await answer(vorpal, "Remove");
@@ -152,7 +152,7 @@ vorpal
 
 vorpal
   .command("retry <jobId>", "retry job")
-  .action(async function(this: CommandInstance, { jobId }: RetryParams) {
+  .action(async function({ jobId }: RetryParams) {
     await getQueue();
     const job = await getJob(jobId);
     await answer(vorpal, "Retry");
@@ -162,7 +162,7 @@ vorpal
 
 vorpal
   .command("promote <jobId>", "promote job")
-  .action(async function(this: CommandInstance, { jobId }: PromoteParams) {
+  .action(async function({ jobId }: PromoteParams) {
     await getQueue();
     const job = await getJob(jobId);
     await answer(vorpal, "Promote");
@@ -172,7 +172,7 @@ vorpal
 
 vorpal
   .command("fail <jobId> <reason>", "fail job")
-  .action(async function(this: CommandInstance, { jobId, reason }: FailParams) {
+  .action(async function({ jobId, reason }: FailParams) {
     await getQueue();
     const job = await getJob(jobId);
     await answer(vorpal, "Fail");
@@ -182,10 +182,7 @@ vorpal
 
 vorpal
   .command("complete <jobId> <data>", "complete job")
-  .action(async function(
-    this: CommandInstance,
-    { jobId, data }: CompleteParams
-  ) {
+  .action(async function({ jobId, data }: CompleteParams) {
     await getQueue();
     const job = await getJob(jobId);
     let returnValue: string;
@@ -214,10 +211,7 @@ vorpal
     "-l, --limit <limit>",
     "Maximum amount of jobs to clean per call, default: all"
   )
-  .action(async function(
-    this: CommandInstance,
-    { period, options }: CleanParams
-  ) {
+  .action(async function({ period, options }: CleanParams) {
     const queue = await getQueue();
     await answer(vorpal, "Clean");
     const grace = period && period.length ? ms(period as string) : void 0;
@@ -261,7 +255,7 @@ vorpal
 
 vorpal
   .command("log <jobId> <data>", "add log to job")
-  .action(async function(this: CommandInstance, { jobId, data }: LogParams) {
+  .action(async function({ jobId, data }: LogParams) {
     await getQueue();
     const job = await getJob(jobId);
     await answer(vorpal, "Add log");
