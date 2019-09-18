@@ -1,5 +1,25 @@
 /// <reference types="./typing" />
 
+import {
+  JobAdditional,
+  ConnectParams,
+  ActiveParams,
+  WaitingParams,
+  CompletedParams,
+  FailedParams,
+  DelayedParams,
+  GetParams,
+  AddParams,
+  Answer,
+  RmParams,
+  RetryParams,
+  PromoteParams,
+  FailParams,
+  CompleteParams,
+  CleanParams,
+  LogsParams,
+  LogParams
+} from "./types";
 import Queue, { Job, Queue as TQueue } from "bull";
 import chalk from "chalk";
 import Vorpal, { CommandInstance } from "vorpal";
@@ -11,17 +31,18 @@ export const vorpal = new Vorpal();
 let queue: TQueue;
 
 const showJobs = (arr: Array<Job>, filter: object) => {
-  const data = arr.map(job => ({
+  const jobs = arr as Array<Job & JobAdditional>;
+  const data = jobs.map(job => ({
     id: job.id,
-    data: job.data,
+    data: (job as JobAdditional).data,
     time: Number.isNaN(job.timestamp) ? job.timestamp : new Date(job.timestamp),
     name: job.name,
-    failedReason: (job as any).failedReason,
+    failedReason: job.failedReason,
     stackTrace: job.stacktrace,
-    returnValue: job.returnvalue,
+    returnValue: (job as JobAdditional).returnvalue,
     attemptsMade: job.attemptsMade,
-    delay: (job as any).delay,
-    progress: (job as any)._progress
+    delay: job.delay,
+    progress: job._progress
   }));
   const filteredData = matchArray(data, filter);
   logArray(filteredData);
@@ -95,19 +116,19 @@ vorpal
   .command("connect <queue>", "connect to bull queue")
   .option("-p, --prefix <prefix>", "prefix to use for all queue jobs")
   .option("-r, --redis <redis>", "host:port of redis, default localhost:6379")
-  .action(async ({ queue: name, options }) => {
+  .action((async ({ queue: name, options }: ConnectParams) => {
     queue && queue.close();
     const url = options.redis
       ? `redis://${options.redis}`
       : "redis://localhost:6379";
-    queue = Queue(name, url, options);
+    queue = Queue(name, url, { prefix: options.prefix });
     await queue.isReady();
     const prefix = options.prefix || "bull";
     console.log(
       chalk.green(`Connected to ${url}, prefix: ${prefix}, queue: ${name}`)
     );
     vorpal.delimiter(`BULL-REPL | ${prefix}.${name}> `).show();
-  });
+  }) as any);
 
 vorpal.command("stats", "count of jobs by groups").action(async () => {
   await checkQueue();
@@ -118,7 +139,7 @@ vorpal
   .command("active", "fetch active jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
-  .action(async ({ options }) => {
+  .action(async ({ options }: ActiveParams) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
     const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
@@ -129,7 +150,7 @@ vorpal
   .command("waiting", "fetch waiting jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
-  .action(async ({ options }) => {
+  .action(async ({ options }: WaitingParams) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
     const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
@@ -140,7 +161,7 @@ vorpal
   .command("completed", "fetch completed jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
-  .action(async ({ options }) => {
+  .action(async ({ options }: CompletedParams) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
     const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
@@ -151,7 +172,7 @@ vorpal
   .command("failed", "fetch failed jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
-  .action(async ({ options }) => {
+  .action(async ({ options }: FailedParams) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
     const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
@@ -162,25 +183,27 @@ vorpal
   .command("delayed", "fetch delayed jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
-  .action(async ({ options }) => {
+  .action(async ({ options }: DelayedParams) => {
     await checkQueue();
     const filter = await getFilter(options.filter);
     const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
     showJobs(await queue.getDelayed(), { ...filter, ...timeAgoFilter });
   });
 
-vorpal.command("get <jobId>", "get job").action(async ({ jobId }) => {
+vorpal.command("get <jobId>", "get job").action((async ({
+  jobId
+}: GetParams) => {
   await checkQueue();
   const job = await getJob(jobId);
   showJobs([job], {});
-});
+}) as any);
 
 vorpal
   .command("add <data>", "add job to queue")
   .option("-n, --name <name>", "name for named job")
-  .action(async function(this: CommandInstance, { data, options }) {
+  .action(async function(this: CommandInstance, { data, options }: AddParams) {
     await checkQueue();
-    let jobData;
+    let jobData: object;
     try {
       jobData = JSON.parse(data);
     } catch (e) {
@@ -188,10 +211,10 @@ vorpal
       err.stack = chalk.yellow(`Error occured, seems "data" incorrect json`);
       throw err;
     }
-    const answer: any = await this.prompt({
+    const answer = (await this.prompt({
       name: "a",
       message: "Add? (y/n): "
-    });
+    })) as Answer;
     if (answer.a !== "y") {
       return;
     }
@@ -200,78 +223,81 @@ vorpal
     console.log(
       chalk.green(`Job with name '${jobName}', id '${addedJob.id}' added`)
     );
-  });
+  } as any);
 
 vorpal
   .command("rm <jobId>", "remove job")
-  .action(async function(this: CommandInstance, { jobId }) {
+  .action(async function(this: CommandInstance, { jobId }: RmParams) {
     await checkQueue();
     const job = await getJob(jobId);
-    const answer: any = await this.prompt({
+    const answer = (await this.prompt({
       name: "a",
       message: "Remove? (y/n): "
-    });
+    })) as Answer;
     if (answer.a !== "y") {
       return;
     }
     await job.remove();
     console.log(chalk.green(`Job "${jobId}" removed`));
-  });
+  } as any);
 
 vorpal
   .command("retry <jobId>", "retry job")
-  .action(async function(this: CommandInstance, { jobId }) {
+  .action(async function(this: CommandInstance, { jobId }: RetryParams) {
     await checkQueue();
     const job = await getJob(jobId);
-    const answer: any = await this.prompt({
+    const answer = (await this.prompt({
       name: "a",
       message: "Retry? (y/n): "
-    });
+    })) as Answer;
     if (answer.a !== "y") {
       return;
     }
     await job.retry();
     console.log(chalk.green(`Job "${jobId}" retried`));
-  });
+  } as any);
 
 vorpal
   .command("promote <jobId>", "promote job")
-  .action(async function(this: CommandInstance, { jobId }) {
+  .action(async function(this: CommandInstance, { jobId }: PromoteParams) {
     await checkQueue();
     const job = await getJob(jobId);
-    const answer: any = await this.prompt({
+    const answer = (await this.prompt({
       name: "a",
       message: "Promote? (y/n): "
-    });
+    })) as Answer;
     if (answer.a !== "y") {
       return;
     }
     await job.promote();
     console.log(chalk.green(`Job "${jobId}" promoted`));
-  });
+  } as any);
 
 vorpal
   .command("fail <jobId> <reason>", "fail job")
-  .action(async function(this: CommandInstance, { jobId, reason }) {
+  .action(async function(this: CommandInstance, { jobId, reason }: FailParams) {
     await checkQueue();
     const job = await getJob(jobId);
-    const answer: any = await this.prompt({
+    const answer = (await this.prompt({
       name: "a",
       message: "Fail? (y/n): "
-    });
+    })) as Answer;
     if (answer.a !== "y") {
       return;
     }
     await job.moveToFailed({ message: reason }, true);
     console.log(chalk.green(`Job "${jobId}" failed`));
-  });
+  } as any);
 
 vorpal
   .command("complete <jobId> <data>", "complete job")
-  .action(async function(this: CommandInstance, { jobId, data }) {
+  .action(async function(
+    this: CommandInstance,
+    { jobId, data }: CompleteParams
+  ) {
     await checkQueue();
     const job = await getJob(jobId);
-    let returnValue;
+    let returnValue: string;
     try {
       returnValue = JSON.parse(data);
     } catch (e) {
@@ -279,16 +305,16 @@ vorpal
       err.stack = chalk.yellow(`Error occured, seems "data" incorrect json`);
       throw err;
     }
-    const answer: any = await this.prompt({
+    const answer = (await this.prompt({
       name: "a",
       message: "Complete? (y/n): "
-    });
+    })) as Answer;
     if (answer.a !== "y") {
       return;
     }
     await job.moveToCompleted(returnValue, true);
     console.log(chalk.green(`Job "${jobId}" completed`));
-  });
+  } as any);
 
 vorpal
   .command(
@@ -303,12 +329,15 @@ vorpal
     "-l, --limit <limit>",
     "Maximum amount of jobs to clean per call, default: all"
   )
-  .action(async function(this: CommandInstance, { period, options }) {
+  .action(async function(
+    this: CommandInstance,
+    { period, options }: CleanParams
+  ) {
     await checkQueue();
-    const answer: any = await this.prompt({
+    const answer = (await this.prompt({
       name: "a",
       message: "Clean? (y/n): "
-    });
+    })) as Answer;
     if (answer.a !== "y") {
       return;
     }
@@ -326,16 +355,18 @@ vorpal
         )
       );
     }
-    const limit = Number.isInteger(options.limit) ? options.limit : void 0;
+    const limit = Number.isInteger(options.limit as number)
+      ? options.limit
+      : void 0;
     await queue.clean(grace, status, limit);
     console.log(chalk.green(`Jobs cleaned`));
-  });
+  } as any);
 
 vorpal
   .command("logs <jobId>", "get logs of job")
   .option("-s, --start <start>", "Start of logs")
   .option("-e, --end <end>", "End of logs")
-  .action(async ({ jobId, options }) => {
+  .action((async ({ jobId, options }: LogsParams) => {
     await checkQueue();
     const { logs, count } = await queue.getJobLogs(
       jobId,
@@ -347,23 +378,23 @@ vorpal
       console.log("Logs:");
       logArray(logs);
     }
-  });
+  }) as any);
 
 vorpal
   .command("log <jobId> <data>", "add log to job")
-  .action(async function(this: CommandInstance, { jobId, data }) {
+  .action(async function(this: CommandInstance, { jobId, data }: LogParams) {
     await checkQueue();
     const job = await getJob(jobId);
-    const answer: any = await this.prompt({
+    const answer = (await this.prompt({
       name: "a",
       message: "Add log? (y/n): "
-    });
+    })) as Answer;
     if (answer.a !== "y") {
       return;
     }
     await job.log(data);
     console.log(chalk.green("Log added to job"));
-  });
+  } as any);
 
 vorpal.history("bull-repl-default");
 vorpal.delimiter("BULL-REPL> ").show();
