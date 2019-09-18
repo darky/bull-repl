@@ -20,6 +20,7 @@ help
     completed [options]        fetch completed jobs
     failed [options]           fetch failed jobs
     delayed [options]          fetch delayed jobs
+    get <jobId>                get job
     add [options] <data>       add job to queue
     rm <jobId>                 remove job
     retry <jobId>              retry job
@@ -28,4 +29,6 @@ help
     complete <jobId> <data>    complete job
     clean [options] <period>   Clean queue for period ago, period format - ms
                                (​https://github.com/zeit/ms#examples​)
+    logs [options] <jobId>     get logs of job
+    log <jobId> <data>         add log to job
 ```
