@@ -169,6 +169,12 @@ vorpal
     showJobs(await queue.getDelayed(), { ...filter, ...timeAgoFilter });
   });
 
+vorpal.command("get <jobId>", "get job").action(async ({ jobId }) => {
+  await checkQueue();
+  const job = await getJob(jobId);
+  showJobs([job], {});
+});
+
 vorpal
   .command("add <data>", "add job to queue")
   .option("-n, --name <name>", "name for named job")
