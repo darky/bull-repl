@@ -30,7 +30,7 @@
     "@types/node": "12.7.5",
     "@types/vorpal": "1.11.0",
     "ts-node": "8.4.1",
-    "type-coverage": "2.2.0",
+    "type-coverage": "2.3.0",
     "typescript": "3.6.3"
   },
   "scripts": {
