@@ -227,6 +227,22 @@ vorpal
   });
 
 vorpal
+  .command("promote <jobId>", "promote job")
+  .action(async function(this: CommandInstance, { jobId }) {
+    await checkQueue();
+    const job = await getJob(jobId);
+    const answer: any = await this.prompt({
+      name: "a",
+      message: "Promote? (y/n): "
+    });
+    if (answer.a !== "y") {
+      return;
+    }
+    await job.promote();
+    console.log(chalk.green(`Job "${jobId}" promoted`));
+  });
+
+vorpal
   .command("fail <jobId> <reason>", "fail job")
   .action(async function(this: CommandInstance, { jobId, reason }) {
     await checkQueue();
