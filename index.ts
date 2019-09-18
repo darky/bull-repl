@@ -1,4 +1,4 @@
-/// <reference types="./src/typing" />
+/// <reference types="./typing" />
 
 import {
   ConnectParams,
