@@ -9,7 +9,6 @@ import {
   DelayedParams,
   GetParams,
   AddParams,
-  Answer,
   RmParams,
   RetryParams,
   PromoteParams,
@@ -29,7 +28,8 @@ import {
   searchjsLink,
   msLink,
   logArray,
-  getJob
+  getJob,
+  answer
 } from "./src/utils";
 import { getQueue, setQueue } from "./src/queue";
 
@@ -132,13 +132,7 @@ vorpal
       err.stack = chalk.yellow(`Error occured, seems "data" incorrect json`);
       throw err;
     }
-    const answer = (await this.prompt({
-      name: "a",
-      message: "Add? (y/n): "
-    })) as Answer;
-    if (answer.a !== "y") {
-      return;
-    }
+    await answer(vorpal, "Add");
     const jobName: string = options.name || "__default__";
     const addedJob = await queue.add(jobName, jobData);
     console.log(
@@ -151,13 +145,7 @@ vorpal
   .action(async function(this: CommandInstance, { jobId }: RmParams) {
     await getQueue();
     const job = await getJob(jobId);
-    const answer = (await this.prompt({
-      name: "a",
-      message: "Remove? (y/n): "
-    })) as Answer;
-    if (answer.a !== "y") {
-      return;
-    }
+    await answer(vorpal, "Remove");
     await job.remove();
     console.log(chalk.green(`Job "${jobId}" removed`));
   } as any);
@@ -167,13 +155,7 @@ vorpal
   .action(async function(this: CommandInstance, { jobId }: RetryParams) {
     await getQueue();
     const job = await getJob(jobId);
-    const answer = (await this.prompt({
-      name: "a",
-      message: "Retry? (y/n): "
-    })) as Answer;
-    if (answer.a !== "y") {
-      return;
-    }
+    await answer(vorpal, "Retry");
     await job.retry();
     console.log(chalk.green(`Job "${jobId}" retried`));
   } as any);
@@ -183,13 +165,7 @@ vorpal
   .action(async function(this: CommandInstance, { jobId }: PromoteParams) {
     await getQueue();
     const job = await getJob(jobId);
-    const answer = (await this.prompt({
-      name: "a",
-      message: "Promote? (y/n): "
-    })) as Answer;
-    if (answer.a !== "y") {
-      return;
-    }
+    await answer(vorpal, "Promote");
     await job.promote();
     console.log(chalk.green(`Job "${jobId}" promoted`));
   } as any);
@@ -199,13 +175,7 @@ vorpal
   .action(async function(this: CommandInstance, { jobId, reason }: FailParams) {
     await getQueue();
     const job = await getJob(jobId);
-    const answer = (await this.prompt({
-      name: "a",
-      message: "Fail? (y/n): "
-    })) as Answer;
-    if (answer.a !== "y") {
-      return;
-    }
+    await answer(vorpal, "Fail");
     await job.moveToFailed({ message: reason }, true);
     console.log(chalk.green(`Job "${jobId}" failed`));
   } as any);
@@ -226,13 +196,7 @@ vorpal
       err.stack = chalk.yellow(`Error occured, seems "data" incorrect json`);
       throw err;
     }
-    const answer = (await this.prompt({
-      name: "a",
-      message: "Complete? (y/n): "
-    })) as Answer;
-    if (answer.a !== "y") {
-      return;
-    }
+    await answer(vorpal, "Complete");
     await job.moveToCompleted(returnValue, true);
     console.log(chalk.green(`Job "${jobId}" completed`));
   } as any);
@@ -255,13 +219,7 @@ vorpal
     { period, options }: CleanParams
   ) {
     const queue = await getQueue();
-    const answer = (await this.prompt({
-      name: "a",
-      message: "Clean? (y/n): "
-    })) as Answer;
-    if (answer.a !== "y") {
-      return;
-    }
+    await answer(vorpal, "Clean");
     const grace = period && period.length ? ms(period as string) : void 0;
     if (!grace) {
       return console.log(chalk.yellow("Incorrect period"));
@@ -306,13 +264,7 @@ vorpal
   .action(async function(this: CommandInstance, { jobId, data }: LogParams) {
     await getQueue();
     const job = await getJob(jobId);
-    const answer = (await this.prompt({
-      name: "a",
-      message: "Add log? (y/n): "
-    })) as Answer;
-    if (answer.a !== "y") {
-      return;
-    }
+    await answer(vorpal, "Add log");
     await job.log(data);
     console.log(chalk.green("Log added to job"));
   } as any);

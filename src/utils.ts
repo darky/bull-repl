@@ -1,10 +1,11 @@
-import { JobAdditional } from "./types";
+import { JobAdditional, Answer } from "./types";
 import { Job } from "bull";
 import { matchArray } from "searchjs";
 import chalk from "chalk";
 import ms from "ms";
 import terminalLink from "terminal-link";
 import { getQueue } from "./queue";
+import Vorpal from "vorpal";
 
 export const getJob = async (jobId: string) => {
   const queue = await getQueue();
@@ -79,3 +80,15 @@ export const searchjsLink = terminalLink(
 );
 
 export const msLink = terminalLink("ms", "https://github.com/zeit/ms#examples");
+
+export const answer = async (vorpal: Vorpal, question: string) => {
+  const answer = (await vorpal.activeCommand.prompt({
+    name: "a",
+    message: `${question}? (y/n): `
+  })) as Answer;
+  if (answer.a !== "y") {
+    let err = new Error();
+    err.stack = chalk.yellow("You cancel action");
+    throw err;
+  }
+};
