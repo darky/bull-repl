@@ -24,11 +24,7 @@ const showJobs = (arr: Array<Job>, filter: object) => {
     progress: (job as any)._progress
   }));
   const filteredData = matchArray(data, filter);
-  console.dir(filteredData, {
-    colors: true,
-    depth: null,
-    maxArrayLength: Infinity
-  });
+  logArray(filteredData);
 };
 
 const checkQueue = async () => {
@@ -77,6 +73,14 @@ const getTimeAgoFilter = (timeAgo?: string) => {
       );
       throw err;
     }
+  });
+};
+
+const logArray = (arr: Array<unknown>) => {
+  console.dir(arr, {
+    colors: true,
+    depth: null,
+    maxArrayLength: Infinity
   });
 };
 
@@ -321,6 +325,33 @@ vorpal
     const limit = Number.isInteger(options.limit) ? options.limit : void 0;
     await queue.clean(grace, status, limit);
     console.log(chalk.green(`Jobs cleaned`));
+  });
+
+vorpal
+  .command("logs <jobId>", "get logs of job")
+  .option("-s, --start <start>", "Start of logs")
+  .option("-e, --end <end>", "End of logs")
+  .action(async ({ jobId, options }) => {
+    await checkQueue();
+    const { logs, count } = await queue.getJobLogs(
+      jobId,
+      options.start,
+      options.end
+    );
+    console.log(`Count of job logs: ${count}`);
+    if (logs.length) {
+      console.log("Logs:");
+      logArray(logs);
+    }
+  });
+
+vorpal
+  .command("log <jobId> <data>", "add log to job")
+  .action(async ({ jobId, data }) => {
+    await checkQueue();
+    const job = await getJob(jobId);
+    await job.log(data);
+    console.log(chalk.green("Log added to job"));
   });
 
 vorpal.history("bull-repl-default");
