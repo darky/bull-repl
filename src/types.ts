@@ -30,7 +30,7 @@ export type FailedParams = ActiveParams;
 export type DelayedParams = ActiveParams;
 
 export type GetParams = {
-  jobId: string;
+  jobId: string[];
 };
 
 export type AddParams = {

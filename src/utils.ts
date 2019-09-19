@@ -85,8 +85,30 @@ export const logGreen = (msg: string) => {
   console.log(chalk.green(msg));
 };
 
+export const logYellow = (msg: string) => {
+  console.log(chalk.yellow(msg));
+};
+
 export const throwYellow = (msg: string): never => {
   let err = new Error();
   err.stack = chalk.yellow(msg);
   throw err;
 };
+
+export async function splitJobsByFound(jobIds: string[]) {
+  const queue = await getQueue();
+  const jobs = await Promise.all(jobIds.map(id => queue.getJob(id)));
+  let notFoundIds = [] as string[];
+  let foundJobs = [] as Job[];
+  let i = 0;
+  for (const jobId of jobIds) {
+    const job = jobs[i];
+    if (job) {
+      foundJobs.push(job);
+    } else {
+      notFoundIds.push(jobId);
+    }
+    i++;
+  }
+  return { notFoundIds, foundJobs };
+}

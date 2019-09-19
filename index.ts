@@ -30,7 +30,9 @@ import {
   getJob,
   answer,
   logGreen,
-  throwYellow
+  throwYellow,
+  logYellow,
+  splitJobsByFound
 } from "./src/utils";
 import { getQueue, setQueue } from "./src/queue";
 
@@ -110,12 +112,12 @@ vorpal
     showJobs(await queue.getDelayed(), { ...filter, ...timeAgoFilter });
   });
 
-vorpal.command("get <jobId>", "get job").action((async ({
+vorpal.command("get <jobId...>", "get job").action((async ({
   jobId
 }: GetParams) => {
-  await getQueue();
-  const job = await getJob(jobId);
-  showJobs([job], {});
+  const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
+  notFoundIds.length && logYellow(`Not found jobs: ${notFoundIds}`);
+  foundJobs.length && showJobs(foundJobs, {});
 }) as any);
 
 vorpal
@@ -136,33 +138,33 @@ vorpal
   } as any);
 
 vorpal
-  .command("rm <jobId>", "remove job")
+  .command("rm <jobId...>", "remove job")
   .action(async function({ jobId }: RmParams) {
-    await getQueue();
-    const job = await getJob(jobId);
     await answer(vorpal, "Remove");
-    await job.remove();
-    logGreen(`Job "${jobId}" removed`);
+    const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
+    await Promise.all(foundJobs.map(j => j.remove()));
+    notFoundIds.length && logYellow(`Not found jobs: ${notFoundIds}`);
+    foundJobs.length && logGreen(`Jobs "${foundJobs.map(j => j.id)}" removed`);
   } as any);
 
 vorpal
-  .command("retry <jobId>", "retry job")
+  .command("retry <jobId...>", "retry job")
   .action(async function({ jobId }: RetryParams) {
-    await getQueue();
-    const job = await getJob(jobId);
     await answer(vorpal, "Retry");
-    await job.retry();
-    logGreen(`Job "${jobId}" retried`);
+    const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
+    await Promise.all(foundJobs.map(j => j.retry()));
+    notFoundIds.length && logYellow(`Not found jobs: ${notFoundIds}`);
+    foundJobs.length && logGreen(`Jobs "${foundJobs.map(j => j.id)}" retried`);
   } as any);
 
 vorpal
-  .command("promote <jobId>", "promote job")
+  .command("promote <jobId...>", "promote job")
   .action(async function({ jobId }: PromoteParams) {
-    await getQueue();
-    const job = await getJob(jobId);
     await answer(vorpal, "Promote");
-    await job.promote();
-    logGreen(`Job "${jobId}" promoted`);
+    const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
+    await Promise.all(foundJobs.map(j => j.promote()));
+    notFoundIds.length && logYellow(`Not found jobs: ${notFoundIds}`);
+    foundJobs.length && logGreen(`Jobs "${foundJobs.map(j => j.id)}" promoted`);
   } as any);
 
 vorpal
