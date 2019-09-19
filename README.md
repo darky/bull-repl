@@ -20,11 +20,11 @@ help
     completed [options]        fetch completed jobs
     failed [options]           fetch failed jobs
     delayed [options]          fetch delayed jobs
-    get <jobId>                get job
+    get <jobId...>             get job
     add [options] <data>       add job to queue
-    rm <jobId>                 remove job
-    retry <jobId>              retry job
-    promote <jobId>            promote job
+    rm <jobId...>              remove job
+    retry <jobId...>           retry job
+    promote <jobId...>         promote job
     fail <jobId> <reason>      fail job
     complete <jobId> <data>    complete job
     clean [options] <period>   Clean queue for period ago, period format - ms
