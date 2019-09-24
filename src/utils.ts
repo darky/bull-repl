@@ -18,18 +18,22 @@ export const getJob = async (jobId: string) => {
 
 export const showJobs = (arr: Array<Job>, filter: object) => {
   const jobs = arr as Array<Job & JobAdditional>;
-  const data = jobs.map(job => ({
-    id: job.id,
-    data: (job as JobAdditional).data,
-    time: Number.isNaN(job.timestamp) ? job.timestamp : new Date(job.timestamp),
-    name: job.name,
-    failedReason: job.failedReason,
-    stackTrace: job.stacktrace,
-    returnValue: (job as JobAdditional).returnvalue,
-    attemptsMade: job.attemptsMade,
-    delay: job.delay,
-    progress: job._progress
-  }));
+  const data = jobs
+    .filter(j => j)
+    .map(job => ({
+      id: job.id,
+      data: (job as JobAdditional).data,
+      time: Number.isNaN(job.timestamp)
+        ? job.timestamp
+        : new Date(job.timestamp),
+      name: job.name,
+      failedReason: job.failedReason,
+      stackTrace: job.stacktrace,
+      returnValue: (job as JobAdditional).returnvalue,
+      attemptsMade: job.attemptsMade,
+      delay: job.delay,
+      progress: job._progress
+    }));
   const filteredData = matchArray(data, filter);
   logArray(filteredData);
 };
