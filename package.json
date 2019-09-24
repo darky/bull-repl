@@ -27,7 +27,7 @@
   "devDependencies": {
     "@types/bull": "3.10.3",
     "@types/ms": "0.7.31",
-    "@types/node": "12.7.5",
+    "@types/node": "12.7.7",
     "@types/vorpal": "1.11.0",
     "ts-node": "8.4.1",
     "type-coverage": "2.3.0",
