@@ -35,7 +35,7 @@
   },
   "scripts": {
     "build": "npx type-coverage --at-least 100 --ignore-catch; rm index.js; tsc --build tsconfig.json; gsed -i '1 i #!/usr/bin/env node' index.js; chmod +x index.js",
-    "dev": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PREFER_TS_EXTS=true ts-node index.ts",
+    "dev": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PREFER_TS_EXTS=true node --inspect -r ts-node/register index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepublish": "npm run build"
   },
