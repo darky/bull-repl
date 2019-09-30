@@ -116,3 +116,13 @@ export async function splitJobsByFound(jobIds: string[]) {
   }
   return { notFoundIds, foundJobs };
 }
+
+export function wrapTryCatch(fn: Function) {
+  return async function(this: unknown, args: unknown) {
+    try {
+      return await fn.call(this, args);
+    } catch (e) {
+      return throwYellow(e.message);
+    }
+  };
+}
