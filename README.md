@@ -20,6 +20,8 @@ help
     completed [options]        fetch completed jobs
     failed [options]           fetch failed jobs
     delayed [options]          fetch delayed jobs
+    pause                      pause current queue
+    resume                     resume current queue from pause
     get <jobId...>             get job
     add [options] <data>       add job to queue
     rm <jobId...>              remove job
