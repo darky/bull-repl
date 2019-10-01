@@ -58,7 +58,11 @@ vorpal
 vorpal.command("stats", "count of jobs by groups").action(
   wrapTryCatch(async () => {
     const queue = await getQueue();
-    console.table(await queue.getJobCounts());
+    const [counts, paused] = await Promise.all([
+      queue.getJobCounts(),
+      queue.getPausedCount()
+    ]);
+    console.table({ ...counts, ...{ paused } });
   })
 );
 
