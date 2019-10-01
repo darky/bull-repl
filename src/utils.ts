@@ -95,6 +95,7 @@ export const logYellow = (msg: string) => {
 
 export const throwYellow = (msg: string): never => {
   let err = new Error();
+  ((err as unknown) as { yellow: boolean }).yellow = true;
   err.stack = chalk.yellow(msg);
   throw err;
 };
@@ -122,6 +123,9 @@ export function wrapTryCatch(fn: Function) {
     try {
       return await fn.call(this, args);
     } catch (e) {
+      if (e.yellow) {
+        throw e;
+      }
       return throwYellow(e.message);
     }
   };
