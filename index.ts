@@ -131,6 +131,24 @@ vorpal
     })
   );
 
+vorpal.command("pause", "pause current queue").action(
+  wrapTryCatch(async () => {
+    const queue = await getQueue();
+    await answer(vorpal, "Pause queue");
+    await queue.pause(false);
+    logGreen(`Queue paused`);
+  })
+);
+
+vorpal.command("resume", "resume current queue from pause").action(
+  wrapTryCatch(async () => {
+    const queue = await getQueue();
+    await answer(vorpal, "Resume queue");
+    await queue.resume(false);
+    logGreen(`Queue resumed from pause`);
+  })
+);
+
 vorpal.command("get <jobId...>", "get job").action(
   wrapTryCatch(async ({ jobId }: GetParams) => {
     const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
