@@ -46,7 +46,7 @@ vorpal
   .action(
     wrapTryCatch(async ({ queue: name, options }: ConnectParams) => {
       const url = options.redis
-        ? `redis://${options.redis}`
+        ? `redis://${options.redis.replace(/^redis:\/\//, "")}`
         : "redis://localhost:6379";
       const prefix = options.prefix || "bull";
       await setQueue(name, url, { prefix });
