@@ -42,7 +42,10 @@ export const vorpal = new Vorpal();
 vorpal
   .command("connect <queue>", "connect to bull queue")
   .option("-p, --prefix <prefix>", "prefix to use for all queue jobs")
-  .option("-r, --redis <redis>", "host:port of redis, default localhost:6379")
+  .option(
+    "-r, --redis <redis>",
+    "redis url in format: redis://[:password@]host[:port][/db-number][?option=value]; default redis://localhost:6379"
+  )
   .action(
     wrapTryCatch(async ({ queue: name, options }: ConnectParams) => {
       const url = options.redis
