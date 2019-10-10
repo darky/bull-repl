@@ -34,3 +34,7 @@ help
     logs [options] <jobId>     get logs of job
     log <jobId> <data>         add log to job
 ```
+
+### Note
+
+You can see help on each command, for example: `connect --help`
