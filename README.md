@@ -26,6 +26,7 @@ help
     add [options] <data>       add job to queue
     rm <jobId...>              remove job
     retry <jobId...>           retry job
+    retry-failed               retry all failed jobs
     promote <jobId...>         promote job
     fail <jobId> <reason>      fail job
     complete <jobId> <data>    complete job
