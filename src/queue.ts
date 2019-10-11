@@ -1,13 +1,11 @@
 import Queue, { Queue as TQueue, QueueOptions } from "bull";
-import chalk from "chalk";
+import { throwYellow } from "./utils";
 
 let queue: TQueue | void;
 
 export async function getQueue() {
   if (!queue) {
-    let err = new Error();
-    err.stack = chalk.yellow("Need connect before");
-    throw err;
+    return throwYellow("Need connect before");
   }
   return await queue.isReady();
 }
