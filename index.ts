@@ -199,6 +199,16 @@ vorpal.command("retry <jobId...>", "retry job").action(
   })
 );
 
+vorpal.command("retry-failed", "retry all failed jobs").action(
+  wrapTryCatch(async function() {
+    const queue = await getQueue();
+    await answer(vorpal, "Retry failed jobs");
+    const failedJobs = await queue.getFailed();
+    await Promise.all(failedJobs.map(j => j.retry()));
+    logGreen('All failed jobs retried');
+  })
+);
+
 vorpal.command("promote <jobId...>", "promote job").action(
   wrapTryCatch(async function({ jobId }: PromoteParams) {
     await answer(vorpal, "Promote");
