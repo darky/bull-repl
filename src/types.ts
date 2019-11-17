@@ -15,6 +15,9 @@ export type ConnectParams = {
   options: {
     prefix?: string;
     redis?: string;
+    clientCert?: string;
+    clientKey?: string;
+    serverCert?: string;
   };
 };
 
@@ -73,4 +76,10 @@ export type LogsParams = {
 export type LogParams = {
   jobId: string;
   data: string;
+};
+
+export type RedisTLSOptions = {
+  clientKey: string;
+  clientCert: string;
+  serverCert: string;
 };

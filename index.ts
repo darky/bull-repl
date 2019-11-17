@@ -33,7 +33,8 @@ import {
   throwYellow,
   logYellow,
   splitJobsByFound,
-  wrapTryCatch
+  wrapTryCatch,
+  getRedisTLSOptions
 } from "./src/utils";
 import { getQueue, setQueue } from "./src/queue";
 
@@ -46,13 +47,36 @@ vorpal
     "-r, --redis <redis>",
     "redis url in format: redis://[:password@]host[:port][/db-number][?option=value]; default redis://localhost:6379"
   )
+  .option(
+    "-c --clientCert <clientCertPemFile>",
+    "File path of Redis Client Certificate file (pem)"
+  )
+  .option(
+    "-k --clientKey <clientKeyPemFile>",
+    "File path of Redis Client Key file (RSA private key as pem)"
+  )
+  .option(
+    "-s --serverCert <serverCertPemFile>",
+    "File path of Redis Server Certifcate file (CA file as pem)"
+  )
   .action(
     wrapTryCatch(async ({ queue: name, options }: ConnectParams) => {
       const url = options.redis
         ? `redis://${options.redis.replace(/^redis:\/\//, "")}`
         : "redis://localhost:6379";
       const prefix = options.prefix || "bull";
-      await setQueue(name, url, { prefix });
+      const queueOptions: any = { prefix };
+
+      const { clientKey, clientCert, serverCert } = options;
+      if (clientKey && clientCert && serverCert) {
+        queueOptions.redis = await getRedisTLSOptions({
+          clientKey,
+          clientCert,
+          serverCert
+        });
+      }
+
+      await setQueue(name, url, queueOptions);
       logGreen(`Connected to ${url}, prefix: ${prefix}, queue: ${name}`);
       vorpal.delimiter(`BULL-REPL | ${prefix}.${name}> `).show();
     })
@@ -205,7 +229,7 @@ vorpal.command("retry-failed", "retry all failed jobs").action(
     await answer(vorpal, "Retry failed jobs");
     const failedJobs = await queue.getFailed();
     await Promise.all(failedJobs.map(j => j.retry()));
-    logGreen('All failed jobs retried');
+    logGreen("All failed jobs retried");
   })
 );
 

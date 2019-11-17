@@ -1,4 +1,4 @@
-import { JobAdditional, Answer } from "./types";
+import { JobAdditional, Answer, RedisTLSOptions } from "./types";
 import { Job } from "bull";
 import { matchArray } from "searchjs";
 import chalk from "chalk";
@@ -6,6 +6,8 @@ import ms from "ms";
 import terminalLink from "terminal-link";
 import { getQueue } from "./queue";
 import Vorpal from "vorpal";
+import { readFile } from "fs";
+import { promisify } from "util";
 
 export const getJob = async (jobId: string) => {
   const queue = await getQueue();
@@ -129,4 +131,16 @@ export function wrapTryCatch(fn: Function) {
       return throwYellow(e.message);
     }
   };
+}
+
+export async function getRedisTLSOptions(opts: RedisTLSOptions) {
+  const promiseFs = promisify(readFile);
+
+  const [key, cert, ca] = await Promise.all([
+    promiseFs(opts.clientKey).then((bf: Buffer) => bf.toString()),
+    promiseFs(opts.clientCert).then((bf: Buffer) => bf.toString()),
+    promiseFs(opts.serverCert).then((bf: Buffer) => bf.toString())
+  ]);
+
+  return { tls: { key, cert, ca } };
 }
