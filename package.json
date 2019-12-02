@@ -17,8 +17,8 @@
     "src/*.js"
   ],
   "dependencies": {
-    "bull": "3.12.0",
-    "chalk": "2.4.2",
+    "bull": "3.12.1",
+    "chalk": "3.0.0",
     "ms": "2.1.2",
     "searchjs": "1.0.2",
     "terminal-link": "2.0.0",
@@ -27,10 +27,10 @@
   "devDependencies": {
     "@types/bull": "3.10.6",
     "@types/ms": "0.7.31",
-    "@types/node": "12.12.6",
+    "@types/node": "12.12.14",
     "@types/vorpal": "1.12.0",
-    "ts-node": "8.4.1",
-    "type-coverage": "2.3.0",
+    "ts-node": "8.5.4",
+    "type-coverage": "2.3.1",
     "typescript": "3.7.2"
   },
   "scripts": {
