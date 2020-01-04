@@ -1,13 +1,15 @@
-import Queue, { Queue as TQueue, QueueOptions } from "bull";
+import { Queue, QueueOptions } from "bullmq";
 import { throwYellow } from "./utils";
+import IORedis from "ioredis";
 
-let queue: TQueue | void;
+let queue: Queue | void;
 
 export async function getQueue() {
   if (!queue) {
     return throwYellow("Need connect before");
   }
-  return await queue.isReady();
+  await queue.waitUntilReady();
+  return queue;
 }
 
 export async function setQueue(
@@ -16,6 +18,8 @@ export async function setQueue(
   options: QueueOptions
 ) {
   queue && (await queue.close());
-  queue = Queue(name, url, options);
-  await queue.isReady();
+  const client = new IORedis(url);
+  queue = new Queue(name, { client, ...options });
+  await queue.waitUntilReady();
+  return queue;
 }

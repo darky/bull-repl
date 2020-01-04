@@ -125,11 +125,16 @@ vorpal.command("connect-to <name>", "connect to saved connection").action(
 vorpal.command("stats", "count of jobs by groups").action(
   wrapTryCatch(async () => {
     const queue = await getQueue();
-    const [counts, paused] = await Promise.all([
-      queue.getJobCounts(),
-      queue.getPausedCount()
-    ]);
-    console.table({ ...counts, ...{ paused } });
+    const counts = await queue.getJobCounts(
+      "completed",
+      "failed",
+      "delayed",
+      "repeat",
+      "active",
+      "wait",
+      "paused"
+    );
+    console.table(counts);
   })
 );
 
@@ -202,7 +207,7 @@ vorpal.command("pause", "pause current queue").action(
   wrapTryCatch(async () => {
     const queue = await getQueue();
     await answer(vorpal, "Pause queue");
-    await queue.pause(false);
+    await queue.pause();
     logGreen(`Queue paused`);
   })
 );
@@ -211,7 +216,7 @@ vorpal.command("resume", "resume current queue from pause").action(
   wrapTryCatch(async () => {
     const queue = await getQueue();
     await answer(vorpal, "Resume queue");
-    await queue.resume(false);
+    await queue.resume();
     logGreen(`Queue resumed from pause`);
   })
 );
@@ -285,17 +290,18 @@ vorpal.command("promote <jobId...>", "promote job").action(
 
 vorpal.command("fail <jobId> <reason>", "fail job").action(
   wrapTryCatch(async function({ jobId, reason }: FailParams) {
-    await getQueue();
+    const queue = await getQueue();
     const job = await getJob(jobId);
     await answer(vorpal, "Fail");
-    await job.moveToFailed({ message: reason }, true);
+    const err = new Error(reason);
+    await job.moveToFailed(err, queue.token);
     logGreen(`Job "${jobId}" failed`);
   })
 );
 
 vorpal.command("complete <jobId> <data>", "complete job").action(
   wrapTryCatch(async function({ jobId, data }: CompleteParams) {
-    await getQueue();
+    const queue = await getQueue();
     const job = await getJob(jobId);
     let returnValue: string;
     try {
@@ -304,7 +310,7 @@ vorpal.command("complete <jobId> <data>", "complete job").action(
       return throwYellow(`Error occured, seems "data" incorrect json`);
     }
     await answer(vorpal, "Complete");
-    await job.moveToCompleted(returnValue, true);
+    await job.moveToCompleted(returnValue, queue.token);
     logGreen(`Job "${jobId}" completed`);
   })
 );
@@ -339,9 +345,9 @@ vorpal
         );
       }
       const limit = Number.isInteger(options.limit as number)
-        ? options.limit
-        : void 0;
-      await queue.clean(grace, status, limit);
+        ? (options.limit as number)
+        : 0;
+      await queue.clean(grace, limit, status);
       logGreen(`Jobs cleaned`);
     })
   );
