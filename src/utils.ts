@@ -32,7 +32,7 @@ export const showJobs = (arr: Array<Job>, filter: object) => {
       returnValue: (job as JobAdditional).returnvalue,
       attemptsMade: job.attemptsMade,
       delay: job.delay,
-      progress: job._progress
+      progress: job.progress
     }));
   const filteredData = matchArray(data, filter);
   logArray(filteredData);
