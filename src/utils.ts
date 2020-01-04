@@ -1,5 +1,5 @@
 import { JobAdditional, Answer } from "./types";
-import { Job } from "bull";
+import { Job } from "bullmq";
 import { matchArray } from "searchjs";
 import chalk from "chalk";
 import ms from "ms";
@@ -7,7 +7,7 @@ import terminalLink from "terminal-link";
 import { getQueue } from "./queue";
 import Vorpal from "vorpal";
 
-export const getJob = async (jobId: string) => {
+export const getJob = async (jobId: string): Promise<Job<unknown, unknown>> => {
   const queue = await getQueue();
   const job = await queue.getJob(jobId);
   if (!job) {

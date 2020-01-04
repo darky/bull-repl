@@ -363,7 +363,7 @@ vorpal
         jobId,
         options.start,
         options.end
-      );
+      ) as {logs: string[], count: number};
       console.log(`Count of job logs: ${count}`);
       if (logs.length) {
         console.log("Logs:");
