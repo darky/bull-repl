@@ -14,6 +14,10 @@ help
     help [command...]          Provides help for a given command.
     exit                       Exits application.
     connect [options] <queue>  connect to bull queue
+    connect-list               list of saved connections
+    connect-rm <name>          remove saved connection
+    connect-save <name>        save current connection
+    connect-to <name>          connect to saved connection
     stats                      count of jobs by groups
     active [options]           fetch active jobs
     waiting [options]          fetch waiting jobs
