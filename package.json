@@ -41,6 +41,7 @@
   },
   "keywords": [
     "bull",
+    "bullmq",
     "queue",
     "repl",
     "cli",
