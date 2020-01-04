@@ -290,18 +290,18 @@ vorpal.command("promote <jobId...>", "promote job").action(
 
 vorpal.command("fail <jobId> <reason>", "fail job").action(
   wrapTryCatch(async function({ jobId, reason }: FailParams) {
-    const queue = await getQueue();
+    await getQueue();
     const job = await getJob(jobId);
     await answer(vorpal, "Fail");
     const err = new Error(reason);
-    await job.moveToFailed(err, queue.token);
+    await job.moveToFailed(err, '0');
     logGreen(`Job "${jobId}" failed`);
   })
 );
 
 vorpal.command("complete <jobId> <data>", "complete job").action(
   wrapTryCatch(async function({ jobId, data }: CompleteParams) {
-    const queue = await getQueue();
+    await getQueue();
     const job = await getJob(jobId);
     let returnValue: string;
     try {
@@ -310,7 +310,7 @@ vorpal.command("complete <jobId> <data>", "complete job").action(
       return throwYellow(`Error occured, seems "data" incorrect json`);
     }
     await answer(vorpal, "Complete");
-    await job.moveToCompleted(returnValue, queue.token);
+    await job.moveToCompleted(returnValue, '0');
     logGreen(`Job "${jobId}" completed`);
   })
 );
