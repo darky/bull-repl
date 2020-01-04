@@ -74,3 +74,9 @@ export type LogParams = {
   jobId: string;
   data: string;
 };
+
+export type LocalStorageQueue = {
+  name: string;
+  url: string;
+  prefix: string;
+};

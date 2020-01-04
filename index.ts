@@ -16,7 +16,8 @@ import {
   CompleteParams,
   CleanParams,
   LogsParams,
-  LogParams
+  LogParams,
+  LocalStorageQueue
 } from "./src/types";
 import Vorpal from "vorpal";
 import ms from "ms";
@@ -38,6 +39,13 @@ import {
 import { getQueue, setQueue } from "./src/queue";
 
 export const vorpal = new Vorpal();
+vorpal.localStorage("bull-repl-default");
+
+export const localStorage = (vorpal.localStorage as unknown) as WindowLocalStorage["localStorage"] & {
+  _localStorage: { keys: string[] };
+};
+
+export const LAST_SAVED_CONNECTION_NAME = "_last-active";
 
 vorpal
   .command("connect <queue>", "connect to bull queue")
@@ -53,10 +61,66 @@ vorpal
         : "redis://localhost:6379";
       const prefix = options.prefix || "bull";
       await setQueue(name, url, { prefix });
+      localStorage.setItem(
+        LAST_SAVED_CONNECTION_NAME,
+        JSON.stringify({ name, url, prefix })
+      );
       logGreen(`Connected to ${url}, prefix: ${prefix}, queue: ${name}`);
       vorpal.delimiter(`BULL-REPL | ${prefix}.${name}> `).show();
     })
   );
+
+vorpal.command("connect-list", "list of saved connections").action(
+  wrapTryCatch(async () => {
+    console.table(localStorage._localStorage.keys);
+  })
+);
+
+vorpal.command("connect-rm <name>", "remove saved connection").action(
+  wrapTryCatch(async ({ name }: { name: string }) => {
+    if (name === LAST_SAVED_CONNECTION_NAME) {
+      return logYellow(`Can't use reserved name, please use another`);
+    }
+    const savedItem = localStorage.getItem(name);
+    if (savedItem) {
+      localStorage.removeItem(name);
+      logGreen(`Connection "${name}" removed`);
+    } else {
+      logYellow(`Connection "${name}" not found`);
+    }
+  })
+);
+
+vorpal.command("connect-save <name>", "save current connection").action(
+  wrapTryCatch(async ({ name: nameForSave }: { name: string }) => {
+    if (nameForSave === LAST_SAVED_CONNECTION_NAME) {
+      return logYellow(`Can't use reserved name, please use another`);
+    }
+    await getQueue();
+    const { name, url, prefix } = JSON.parse(
+      localStorage.getItem(LAST_SAVED_CONNECTION_NAME) as string
+    ) as LocalStorageQueue;
+    localStorage.setItem(nameForSave, JSON.stringify({ name, url, prefix }));
+    logGreen(`Connection "${nameForSave}" saved`);
+  })
+);
+
+vorpal.command("connect-to <name>", "connect to saved connection").action(
+  wrapTryCatch(async ({ name: connectToName }: { name: string }) => {
+    const savedItem = localStorage.getItem(connectToName);
+    if (!savedItem) {
+      return logYellow(`Connection "${connectToName}" not found`);
+    }
+    const { name, url, prefix } = JSON.parse(savedItem) as LocalStorageQueue;
+    await setQueue(name, url, { prefix });
+    localStorage.setItem(
+      LAST_SAVED_CONNECTION_NAME,
+      JSON.stringify({ name, url, prefix })
+    );
+    logGreen(`Connected to ${url}, prefix: ${prefix}, queue: ${name}`);
+    vorpal.delimiter(`BULL-REPL | ${prefix}.${name}> `).show();
+  })
+);
 
 vorpal.command("stats", "count of jobs by groups").action(
   wrapTryCatch(async () => {
@@ -205,7 +269,7 @@ vorpal.command("retry-failed", "retry all failed jobs").action(
     await answer(vorpal, "Retry failed jobs");
     const failedJobs = await queue.getFailed();
     await Promise.all(failedJobs.map(j => j.retry()));
-    logGreen('All failed jobs retried');
+    logGreen("All failed jobs retried");
   })
 );
 
