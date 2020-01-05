@@ -1,6 +1,6 @@
 # bull-repl
 
-Bull queue command line REPL.
+Bull / BullMQ queue command line REPL.
 
 ### BullMQ 4 Beta
 
