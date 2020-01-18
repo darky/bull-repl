@@ -17,7 +17,7 @@
     "src/*.js"
   ],
   "dependencies": {
-    "bullmq": "1.6.3",
+    "bullmq": "1.6.7",
     "chalk": "3.0.0",
     "ioredis": "4.14.1",
     "ms": "2.1.2",
@@ -27,11 +27,11 @@
   },
   "devDependencies": {
     "@types/ms": "0.7.31",
-    "@types/node": "13.1.4",
+    "@types/node": "13.1.8",
     "@types/vorpal": "1.12.0",
-    "ts-node": "8.5.4",
+    "ts-node": "8.6.2",
     "type-coverage": "2.4.0",
-    "typescript": "3.7.4"
+    "typescript": "3.7.5"
   },
   "scripts": {
     "build": "npx type-coverage --at-least 100 --ignore-catch; rm index.js; tsc --build tsconfig.json; gsed -i '1 i #!/usr/bin/env node' index.js; chmod +x index.js",
