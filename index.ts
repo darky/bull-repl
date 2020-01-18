@@ -243,7 +243,9 @@ vorpal
       }
       await answer(vorpal, "Add");
       const jobName: string = options.name || "__default__";
-      const addedJob = await queue.add(jobName, jobData);
+      const addedJob = await queue.add(jobName, jobData, {
+        timestamp: Date.now()
+      });
       logGreen(`Job with name '${jobName}', id '${addedJob.id}' added`);
     })
   );
@@ -294,7 +296,7 @@ vorpal.command("fail <jobId> <reason>", "fail job").action(
     const job = await getJob(jobId);
     await answer(vorpal, "Fail");
     const err = new Error(reason);
-    await job.moveToFailed(err, '0');
+    await job.moveToFailed(err, "0");
     logGreen(`Job "${jobId}" failed`);
   })
 );
@@ -310,7 +312,7 @@ vorpal.command("complete <jobId> <data>", "complete job").action(
       return throwYellow(`Error occured, seems "data" incorrect json`);
     }
     await answer(vorpal, "Complete");
-    await job.moveToCompleted(returnValue, '0');
+    await job.moveToCompleted(returnValue, "0");
     logGreen(`Job "${jobId}" completed`);
   })
 );
@@ -359,11 +361,11 @@ vorpal
   .action(
     wrapTryCatch(async ({ jobId, options }: LogsParams) => {
       const queue = await getQueue();
-      const { logs, count } = await queue.getJobLogs(
+      const { logs, count } = (await queue.getJobLogs(
         jobId,
         options.start,
         options.end
-      ) as {logs: string[], count: number};
+      )) as { logs: string[]; count: number };
       console.log(`Count of job logs: ${count}`);
       if (logs.length) {
         console.log("Logs:");
