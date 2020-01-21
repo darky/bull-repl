@@ -137,12 +137,17 @@ vorpal
   .command("active", "fetch active jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
+  .option("-s, --start <start>", "start index (pagination)")
+  .option("-e, --end <end>", "end index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: ActiveParams) => {
       const queue = await getQueue();
       const filter = await getFilter(options.filter);
       const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
-      showJobs(await queue.getActive(), { ...filter, ...timeAgoFilter });
+      showJobs(await queue.getActive(options.start || 0, options.end || 100), {
+        ...filter,
+        ...timeAgoFilter
+      });
     })
   );
 
@@ -150,12 +155,17 @@ vorpal
   .command("waiting", "fetch waiting jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
+  .option("-s, --start <start>", "start index (pagination)")
+  .option("-e, --end <end>", "end index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: WaitingParams) => {
       const queue = await getQueue();
       const filter = await getFilter(options.filter);
       const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
-      showJobs(await queue.getWaiting(), { ...filter, ...timeAgoFilter });
+      showJobs(await queue.getWaiting(options.start || 0, options.end || 100), {
+        ...filter,
+        ...timeAgoFilter
+      });
     })
   );
 
@@ -163,12 +173,17 @@ vorpal
   .command("completed", "fetch completed jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
+  .option("-s, --start <start>", "start index (pagination)")
+  .option("-e, --end <end>", "end index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: CompletedParams) => {
       const queue = await getQueue();
       const filter = await getFilter(options.filter);
       const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
-      showJobs(await queue.getCompleted(), { ...filter, ...timeAgoFilter });
+      showJobs(
+        await queue.getCompleted(options.start || 0, options.end || 100),
+        { ...filter, ...timeAgoFilter }
+      );
     })
   );
 
@@ -176,12 +191,17 @@ vorpal
   .command("failed", "fetch failed jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
+  .option("-s, --start <start>", "start index (pagination)")
+  .option("-e, --end <end>", "end index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: FailedParams) => {
       const queue = await getQueue();
       const filter = await getFilter(options.filter);
       const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
-      showJobs(await queue.getFailed(), { ...filter, ...timeAgoFilter });
+      showJobs(await queue.getFailed(options.start || 0, options.end || 100), {
+        ...filter,
+        ...timeAgoFilter
+      });
     })
   );
 
@@ -189,12 +209,17 @@ vorpal
   .command("delayed", "fetch delayed jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
+  .option("-s, --start <start>", "start index (pagination)")
+  .option("-e, --end <end>", "end index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: DelayedParams) => {
       const queue = await getQueue();
       const filter = await getFilter(options.filter);
       const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
-      showJobs(await queue.getDelayed(), { ...filter, ...timeAgoFilter });
+      showJobs(await queue.getDelayed(options.start || 0, options.end || 100), {
+        ...filter,
+        ...timeAgoFilter
+      });
     })
   );
 
@@ -263,11 +288,11 @@ vorpal.command("retry <jobId...>", "retry job").action(
   })
 );
 
-vorpal.command("retry-failed", "retry all failed jobs").action(
+vorpal.command("retry-failed", "retry first 100 failed jobs").action(
   wrapTryCatch(async function() {
     const queue = await getQueue();
     await answer(vorpal, "Retry failed jobs");
-    const failedJobs = await queue.getFailed();
+    const failedJobs = await queue.getFailed(0, 100);
     await Promise.all(failedJobs.map(j => j.retry()));
     logGreen("All failed jobs retried");
   })
