@@ -22,6 +22,8 @@ export type ActiveParams = {
   options: {
     filter?: string;
     timeAgo?: string;
+    start?: number;
+    end?: number;
   };
 };
 export type WaitingParams = ActiveParams;
