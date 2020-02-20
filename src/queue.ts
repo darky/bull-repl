@@ -19,7 +19,7 @@ export async function setQueue(
 ) {
   queue && (await queue.close());
   const client = new IORedis(url);
-  queue = new Queue(name, { client, ...options });
+  queue = new Queue(name, { connection: client, ...options });
   await queue.waitUntilReady();
   return queue;
 }
