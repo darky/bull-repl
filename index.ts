@@ -239,6 +239,7 @@ vorpal.command("resume", "resume current queue from pause").action(
     await queue.resume(false);
     logGreen(`Queue resumed from pause`);
   })
+
 );
 
 vorpal.command("get <jobId...>", "get job").action(
@@ -350,7 +351,6 @@ vorpal
   .action(
     wrapTryCatch(async function({ period, options }: CleanParams) {
       const queue = await getQueue();
-      await answer(vorpal, "Clean");
       const grace = period && period.length ? ms(period as string) : void 0;
       if (!grace) {
         return throwYellow("Incorrect period");
@@ -363,6 +363,7 @@ vorpal
           "Incorrect status, should be: completed or wait or active or delayed or failed"
         );
       }
+      await answer(vorpal, "Clean");
       const limit = Number.isInteger(options.limit as number)
         ? options.limit
         : void 0;
