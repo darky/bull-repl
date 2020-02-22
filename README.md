@@ -8,12 +8,6 @@ You can try bull-repl with upcoming BullMQ via `npm install bull-repl@next`
 
 ### Doc
 
-### BullMQ 4 Beta
-
-You can try bull-repl with upcoming BullMQ via `npm install bull-repl@next`
-
-### Doc
-
 ```
 npm install bull-repl -g
 bull-repl
