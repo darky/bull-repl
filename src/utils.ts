@@ -7,6 +7,8 @@ import terminalLink from "terminal-link";
 import { getQueue } from "./queue";
 import Vorpal from "vorpal";
 
+export const LAST_SAVED_CONNECTION_NAME = "_last-active";
+
 export const getJob = async (jobId: string) => {
   const queue = await getQueue();
   const job = await queue.getJob(jobId);

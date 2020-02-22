@@ -14,7 +14,11 @@ export type ConnectParams = {
   queue: string;
   options: {
     prefix?: string;
-    redis?: string;
+    host?: string;
+    port?: number;
+    db?: number;
+    password?: string;
+    cert?: string;
   };
 };
 
@@ -75,10 +79,4 @@ export type LogsParams = {
 export type LogParams = {
   jobId: string;
   data: string;
-};
-
-export type LocalStorageQueue = {
-  name: string;
-  url: string;
-  prefix: string;
 };
