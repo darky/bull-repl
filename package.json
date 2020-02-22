@@ -17,7 +17,7 @@
     "src/*.js"
   ],
   "dependencies": {
-    "bullmq": "1.6.7",
+    "bullmq": "1.6.8",
     "chalk": "3.0.0",
     "ioredis": "4.16.0",
     "ms": "2.1.2",
