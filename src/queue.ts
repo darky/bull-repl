@@ -1,8 +1,9 @@
-import { Queue, QueueOptions } from "bullmq";
-import { throwYellow, logGreen, LAST_SAVED_CONNECTION_NAM } from "./utils";
+import { Queue } from "bullmq";
+import { throwYellow, logGreen, LAST_SAVED_CONNECTION_NAME } from "./utils";
 import IORedis from "ioredis";
 import fs from "fs";
 import Vorpal from "vorpal";
+import { ConnectParams } from "./types";
 
 let queue: Queue | void;
 
@@ -16,12 +17,12 @@ export async function getQueue() {
 
 export async function setQueue(
   name: string,
-  url: string,
-  options: QueueOptions
+  prefix: string,
+  options: IORedis.RedisOptions
 ) {
   queue && (await queue.close());
-  const client = new IORedis(url);
-  queue = new Queue(name, { connection: client, ...options });
+  const client = new IORedis(options);
+  queue = new Queue(name, { connection: client, ...{ prefix } });
   await queue.waitUntilReady();
   return queue;
 }
@@ -40,16 +41,13 @@ export async function connectToQueue(
         ca: fs.readFileSync(options.cert),
         rejectUnauthorized: false
       }
-    : {};
-  await setQueue(name, "", {
-    prefix,
-    redis: {
-      host,
-      port,
-      db,
-      password,
-      tls
-    }
+    : void 0;
+  await setQueue(name, prefix, {
+    host,
+    port,
+    db,
+    password,
+    tls
   });
   (<WindowLocalStorage["localStorage"]>(<unknown>vorpal.localStorage)).setItem(
     LAST_SAVED_CONNECTION_NAME,
