@@ -23,9 +23,11 @@ export const showJobs = (arr: Array<Job>, filter: object) => {
     .map(job => ({
       id: job.id,
       data: (job as JobAdditional).data,
-      time: Number.isNaN(job.timestamp)
+      timestamp: Number.isNaN(job.timestamp)
         ? job.timestamp
         : new Date(job.timestamp),
+      processedOn: job.processedOn && new Date(job.processedOn),
+      finishedOn: job.finishedOn && new Date(job.finishedOn),
       name: job.name,
       failedReason: job.failedReason,
       stackTrace: job.stacktrace,
@@ -52,7 +54,7 @@ export const getTimeAgoFilter = (timeAgo?: string) => {
   return new Promise<object>(resolve => {
     try {
       const msAgo = timeAgo && timeAgo.length ? ms(timeAgo) : void 0;
-      const filter = msAgo ? { time: { gte: Date.now() - msAgo } } : {};
+      const filter = msAgo ? { timestamp: { gte: Date.now() - msAgo } } : {};
       resolve(filter);
     } catch (e) {
       throwYellow(`Error occured, seems passed "timeAgo" incorrect`);
