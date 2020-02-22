@@ -16,8 +16,7 @@ import {
   CompleteParams,
   CleanParams,
   LogsParams,
-  LogParams,
-  LocalStorageQueue
+  LogParams
 } from "./src/types";
 import Vorpal from "vorpal";
 import ms from "ms";
@@ -34,9 +33,10 @@ import {
   throwYellow,
   logYellow,
   splitJobsByFound,
-  wrapTryCatch
+  wrapTryCatch,
+  LAST_SAVED_CONNECTION_NAME
 } from "./src/utils";
-import { getQueue, setQueue } from "./src/queue";
+import { getQueue, connectToQueue } from "./src/queue";
 
 export const vorpal = new Vorpal();
 vorpal.localStorage("bull-repl-default");
@@ -45,28 +45,17 @@ export const localStorage = (vorpal.localStorage as unknown) as WindowLocalStora
   _localStorage: { keys: string[] };
 };
 
-export const LAST_SAVED_CONNECTION_NAME = "_last-active";
-
 vorpal
   .command("connect <queue>", "connect to bull queue")
-  .option("-p, --prefix <prefix>", "prefix to use for all queue jobs")
-  .option(
-    "-r, --redis <redis>",
-    "redis url in format: redis://[:password@]host[:port][/db-number][?option=value]; default redis://localhost:6379"
-  )
+  .option("--prefix <prefix>", "prefix to use for all queue jobs")
+  .option("-h, --host <host>", "redis host for connection")
+  .option("-p, --port <port>", "redis port for connection")
+  .option("-d, --db <db>", "redis db for connection")
+  .option("--password <password>", "redis password for connection")
+  .option("-c, --cert <cert>", "absolute path to pem certificate if TLS used")
   .action(
-    wrapTryCatch(async ({ queue: name, options }: ConnectParams) => {
-      const url = options.redis
-        ? `redis://${options.redis.replace(/^redis:\/\//, "")}`
-        : "redis://localhost:6379";
-      const prefix = options.prefix || "bull";
-      await setQueue(name, url, { prefix });
-      localStorage.setItem(
-        LAST_SAVED_CONNECTION_NAME,
-        JSON.stringify({ name, url, prefix })
-      );
-      logGreen(`Connected to ${url}, prefix: ${prefix}, queue: ${name}`);
-      vorpal.delimiter(`BULL-REPL | ${prefix}.${name}> `).show();
+    wrapTryCatch(async (params: ConnectParams) => {
+      await connectToQueue(params, vorpal);
     })
   );
 
@@ -97,10 +86,10 @@ vorpal.command("connect-save <name>", "save current connection").action(
       return logYellow(`Can't use reserved name, please use another`);
     }
     await getQueue();
-    const { name, url, prefix } = JSON.parse(
+    const options = JSON.parse(
       localStorage.getItem(LAST_SAVED_CONNECTION_NAME) as string
-    ) as LocalStorageQueue;
-    localStorage.setItem(nameForSave, JSON.stringify({ name, url, prefix }));
+    ) as ConnectParams;
+    localStorage.setItem(nameForSave, JSON.stringify(options));
     logGreen(`Connection "${nameForSave}" saved`);
   })
 );
@@ -111,14 +100,8 @@ vorpal.command("connect-to <name>", "connect to saved connection").action(
     if (!savedItem) {
       return logYellow(`Connection "${connectToName}" not found`);
     }
-    const { name, url, prefix } = JSON.parse(savedItem) as LocalStorageQueue;
-    await setQueue(name, url, { prefix });
-    localStorage.setItem(
-      LAST_SAVED_CONNECTION_NAME,
-      JSON.stringify({ name, url, prefix })
-    );
-    logGreen(`Connected to ${url}, prefix: ${prefix}, queue: ${name}`);
-    vorpal.delimiter(`BULL-REPL | ${prefix}.${name}> `).show();
+    const options: ConnectParams = JSON.parse(savedItem);
+    await connectToQueue(options, vorpal);
   })
 );
 
@@ -141,7 +124,7 @@ vorpal.command("stats", "count of jobs by groups").action(
 vorpal
   .command("active", "fetch active jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
-  .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
+  .option("-t, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .option("-s, --start <start>", "start index (pagination)")
   .option("-e, --end <end>", "end index (pagination)")
   .action(
@@ -159,7 +142,7 @@ vorpal
 vorpal
   .command("waiting", "fetch waiting jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
-  .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
+  .option("-t, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .option("-s, --start <start>", "start index (pagination)")
   .option("-e, --end <end>", "end index (pagination)")
   .action(
@@ -177,7 +160,7 @@ vorpal
 vorpal
   .command("completed", "fetch completed jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
-  .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
+  .option("-t, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .option("-s, --start <start>", "start index (pagination)")
   .option("-e, --end <end>", "end index (pagination)")
   .action(
@@ -195,7 +178,7 @@ vorpal
 vorpal
   .command("failed", "fetch failed jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
-  .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
+  .option("-t, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .option("-s, --start <start>", "start index (pagination)")
   .option("-e, --end <end>", "end index (pagination)")
   .action(
@@ -213,7 +196,7 @@ vorpal
 vorpal
   .command("delayed", "fetch delayed jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
-  .option("-ta, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
+  .option("-t, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .option("-s, --start <start>", "start index (pagination)")
   .option("-e, --end <end>", "end index (pagination)")
   .action(
@@ -244,7 +227,6 @@ vorpal.command("resume", "resume current queue from pause").action(
     await queue.resume();
     logGreen(`Queue resumed from pause`);
   })
-
 );
 
 vorpal.command("get <jobId...>", "get job").action(
