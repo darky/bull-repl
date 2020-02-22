@@ -26,6 +26,8 @@ export const showJobs = (arr: Array<Job>, filter: object) => {
       time: Number.isNaN(job.timestamp)
         ? job.timestamp
         : new Date(job.timestamp),
+      processedOn: job.processedOn && new Date(job.processedOn),
+      finishedOn: job.finishedOn && new Date(job.finishedOn),
       name: job.name,
       failedReason: job.failedReason,
       stackTrace: job.stacktrace,
