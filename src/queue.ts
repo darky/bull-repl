@@ -37,7 +37,7 @@ export async function connectToQueue(
         ca: fs.readFileSync(options.cert),
         rejectUnauthorized: false
       }
-    : {};
+    : void 0;
   await setQueue(name, "", {
     prefix,
     redis: {
