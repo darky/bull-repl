@@ -25,13 +25,13 @@
     "vorpal": "1.12.0"
   },
   "devDependencies": {
-    "@types/bull": "3.12.0",
+    "@types/bull": "3.12.1",
     "@types/ms": "0.7.31",
-    "@types/node": "13.7.4",
+    "@types/node": "13.7.7",
     "@types/vorpal": "1.12.0",
     "ts-node": "8.6.2",
     "type-coverage": "2.4.0",
-    "typescript": "3.8.2"
+    "typescript": "3.8.3"
   },
   "scripts": {
     "build": "npx type-coverage --at-least 100 --ignore-catch; rm index.js; tsc --build tsconfig.json; gsed -i '1 i #!/usr/bin/env node' index.js; chmod +x index.js",
