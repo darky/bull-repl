@@ -17,13 +17,13 @@
     "src/*.js"
   ],
   "dependencies": {
-    "bullmq": "1.8.3",
+    "@moleculer/vorpal": "1.11.5",
+    "bullmq": "1.8.4",
     "chalk": "3.0.0",
     "ioredis": "4.16.0",
     "ms": "2.1.2",
     "searchjs": "1.0.2",
-    "terminal-link": "2.1.1",
-    "vorpal": "1.12.0"
+    "terminal-link": "2.1.1"
   },
   "devDependencies": {
     "@types/ms": "0.7.31",
