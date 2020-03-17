@@ -2,7 +2,7 @@ import Queue, { Queue as TQueue, QueueOptions } from "bull";
 import { throwYellow, logGreen, LAST_SAVED_CONNECTION_NAME } from "./utils";
 import { ConnectParams } from "./types";
 import fs from "fs";
-import Vorpal from "vorpal";
+import Vorpal from "@moleculer/vorpal";
 
 let queue: TQueue | void;
 

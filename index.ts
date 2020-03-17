@@ -18,7 +18,7 @@ import {
   LogsParams,
   LogParams
 } from "./src/types";
-import Vorpal from "vorpal";
+import Vorpal from "@moleculer/vorpal";
 import ms from "ms";
 import {
   showJobs,
@@ -42,7 +42,7 @@ export const vorpal = new Vorpal();
 vorpal.localStorage("bull-repl-default");
 
 export const localStorage = (vorpal.localStorage as unknown) as WindowLocalStorage["localStorage"] & {
-  _localStorage: { keys: string[] };
+  _localStorage: { _keys: string[] };
 };
 
 vorpal
@@ -61,7 +61,7 @@ vorpal
 
 vorpal.command("connect-list", "list of saved connections").action(
   wrapTryCatch(async () => {
-    console.table(localStorage._localStorage.keys);
+    console.table(localStorage._localStorage._keys);
   })
 );
 
