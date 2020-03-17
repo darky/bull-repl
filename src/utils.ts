@@ -5,7 +5,7 @@ import chalk from "chalk";
 import ms from "ms";
 import terminalLink from "terminal-link";
 import { getQueue } from "./queue";
-import Vorpal from "vorpal";
+import Vorpal from "@moleculer/vorpal";
 
 export const LAST_SAVED_CONNECTION_NAME = "_last-active";
 
