@@ -46,6 +46,7 @@ help
     log <jobId> <data>         add log to job
 ```
 
-### Note
+### Notes
 
-You can see help on each command, for example: `connect --help`
+- You can see help on each command, for example: `connect --help`
+- Also you can predefine startup command, when run bull-repl. For example: `bull-repl connect my-queue`

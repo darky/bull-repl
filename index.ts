@@ -34,7 +34,8 @@ import {
   logYellow,
   splitJobsByFound,
   wrapTryCatch,
-  LAST_SAVED_CONNECTION_NAME
+  LAST_SAVED_CONNECTION_NAME,
+  getBootCommand
 } from "./src/utils";
 import { getQueue, connectToQueue } from "./src/queue";
 
@@ -393,4 +394,9 @@ vorpal.command("log <jobId> <data>", "add log to job").action(
 );
 
 vorpal.history("bull-repl-default");
-vorpal.delimiter("BULL-REPL> ").show();
+
+const command = getBootCommand(vorpal.delimiter("BULL-REPL> ").show());
+
+if (command) {
+  vorpal.exec(command);
+}
