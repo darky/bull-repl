@@ -27,9 +27,9 @@
   },
   "devDependencies": {
     "@types/ms": "0.7.31",
-    "@types/node": "13.9.1",
+    "@types/node": "13.9.2",
     "@types/vorpal": "1.12.0",
-    "ts-node": "8.6.2",
+    "ts-node": "8.7.0",
     "type-coverage": "2.4.2",
     "typescript": "3.8.3"
   },
