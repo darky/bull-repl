@@ -18,19 +18,19 @@
   ],
   "dependencies": {
     "@moleculer/vorpal": "1.11.5",
-    "bullmq": "1.8.4",
-    "chalk": "3.0.0",
-    "ioredis": "4.16.0",
+    "bullmq": "1.8.7",
+    "chalk": "4.0.0",
+    "ioredis": "4.16.3",
     "ms": "2.1.2",
     "searchjs": "1.0.2",
     "terminal-link": "2.1.1"
   },
   "devDependencies": {
     "@types/ms": "0.7.31",
-    "@types/node": "13.9.2",
+    "@types/node": "13.13.5",
     "@types/vorpal": "1.12.0",
-    "ts-node": "8.7.0",
-    "type-coverage": "2.4.2",
+    "ts-node": "8.10.1",
+    "type-coverage": "2.5.0",
     "typescript": "3.8.3"
   },
   "scripts": {
