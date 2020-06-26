@@ -49,6 +49,7 @@ export const localStorage = (vorpal.localStorage as unknown) as WindowLocalStora
 vorpal
   .command("connect <queue>", "Connect to bull queue")
   .option("--prefix <prefix>", "Prefix to use for all queue jobs")
+  .option("-u, --uri <uri>", "Redis uri connection string")
   .option("-h, --host <host>", "Redis host for connection")
   .option("-p, --port <port>", "Redis port for connection")
   .option("-d, --db <db>", "Redis db for connection")
