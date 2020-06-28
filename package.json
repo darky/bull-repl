@@ -19,7 +19,7 @@
   "dependencies": {
     "@moleculer/vorpal": "1.11.5",
     "bullmq": "1.8.13",
-    "chalk": "4.0.0",
+    "chalk": "4.1.0",
     "ioredis": "4.17.3",
     "ms": "2.1.2",
     "searchjs": "1.0.2",
@@ -27,11 +27,11 @@
   },
   "devDependencies": {
     "@types/ms": "0.7.31",
-    "@types/node": "13.13.5",
+    "@types/node": "14.0.14",
     "@types/vorpal": "1.12.0",
-    "ts-node": "8.10.1",
-    "type-coverage": "2.5.0",
-    "typescript": "3.8.3"
+    "ts-node": "8.10.2",
+    "type-coverage": "2.7.2",
+    "typescript": "3.9.5"
   },
   "scripts": {
     "build": "npx type-coverage --at-least 100 --ignore-catch; rm index.js; tsc --build tsconfig.json; gsed -i '1 i #!/usr/bin/env node' index.js; chmod +x index.js",
