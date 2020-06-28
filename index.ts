@@ -47,26 +47,26 @@ export const localStorage = (vorpal.localStorage as unknown) as WindowLocalStora
 };
 
 vorpal
-  .command("connect <queue>", "connect to bull queue")
-  .option("--prefix <prefix>", "prefix to use for all queue jobs")
-  .option("-h, --host <host>", "redis host for connection")
-  .option("-p, --port <port>", "redis port for connection")
-  .option("-d, --db <db>", "redis db for connection")
-  .option("--password <password>", "redis password for connection")
-  .option("-c, --cert <cert>", "absolute path to pem certificate if TLS used")
+  .command("connect <queue>", "Connect to bull queue")
+  .option("--prefix <prefix>", "Prefix to use for all queue jobs")
+  .option("-h, --host <host>", "Redis host for connection")
+  .option("-p, --port <port>", "Redis port for connection")
+  .option("-d, --db <db>", "Redis db for connection")
+  .option("--password <password>", "Redis password for connection")
+  .option("-c, --cert <cert>", "Absolute path to pem certificate if TLS used")
   .action(
     wrapTryCatch(async (params: ConnectParams) => {
       await connectToQueue(params, vorpal);
     })
   );
 
-vorpal.command("connect-list", "list of saved connections").action(
+vorpal.command("connect-list", "List of saved connections").action(
   wrapTryCatch(async () => {
     console.table(localStorage._localStorage._keys);
   })
 );
 
-vorpal.command("connect-rm <name>", "remove saved connection").action(
+vorpal.command("connect-rm <name>", "Remove saved connection").action(
   wrapTryCatch(async ({ name }: { name: string }) => {
     if (name === LAST_SAVED_CONNECTION_NAME) {
       return logYellow(`Can't use reserved name, please use another`);
@@ -81,7 +81,7 @@ vorpal.command("connect-rm <name>", "remove saved connection").action(
   })
 );
 
-vorpal.command("connect-save <name>", "save current connection").action(
+vorpal.command("connect-save <name>", "Save current connection").action(
   wrapTryCatch(async ({ name: nameForSave }: { name: string }) => {
     if (nameForSave === LAST_SAVED_CONNECTION_NAME) {
       return logYellow(`Can't use reserved name, please use another`);
@@ -95,7 +95,7 @@ vorpal.command("connect-save <name>", "save current connection").action(
   })
 );
 
-vorpal.command("connect-to <name>", "connect to saved connection").action(
+vorpal.command("connect-to <name>", "Connect to saved connection").action(
   wrapTryCatch(async ({ name: connectToName }: { name: string }) => {
     const savedItem = localStorage.getItem(connectToName);
     if (!savedItem) {
@@ -106,7 +106,7 @@ vorpal.command("connect-to <name>", "connect to saved connection").action(
   })
 );
 
-vorpal.command("stats", "count of jobs by groups").action(
+vorpal.command("stats", "Count of jobs by type").action(
   wrapTryCatch(async () => {
     const queue = await getQueue();
     const [counts, paused] = await Promise.all([
@@ -118,11 +118,11 @@ vorpal.command("stats", "count of jobs by groups").action(
 );
 
 vorpal
-  .command("active", "fetch active jobs")
-  .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
-  .option("-t, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
-  .option("-s, --start <start>", "start index (pagination)")
-  .option("-e, --end <end>", "end index (pagination)")
+  .command("active", "Fetch active jobs")
+  .option("-f, --filter <filter>", `Filter jobs via ${searchjsLink}`)
+  .option("-t, --timeAgo <timeAgo>", `Get jobs since time ago via ${msLink}`)
+  .option("-s, --start <start>", "Start index (pagination)")
+  .option("-e, --end <end>", "End index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: ActiveParams) => {
       const queue = await getQueue();
@@ -136,11 +136,11 @@ vorpal
   );
 
 vorpal
-  .command("waiting", "fetch waiting jobs")
-  .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
-  .option("-t, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
-  .option("-s, --start <start>", "start index (pagination)")
-  .option("-e, --end <end>", "end index (pagination)")
+  .command("waiting", "Fetch waiting jobs")
+  .option("-f, --filter <filter>", `Filter jobs via ${searchjsLink}`)
+  .option("-t, --timeAgo <timeAgo>", `Get jobs since time ago via ${msLink}`)
+  .option("-s, --start <start>", "Start index (pagination)")
+  .option("-e, --end <end>", "End index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: WaitingParams) => {
       const queue = await getQueue();
@@ -154,11 +154,11 @@ vorpal
   );
 
 vorpal
-  .command("completed", "fetch completed jobs")
-  .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
-  .option("-t, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
-  .option("-s, --start <start>", "start index (pagination)")
-  .option("-e, --end <end>", "end index (pagination)")
+  .command("completed", "Fetch completed jobs")
+  .option("-f, --filter <filter>", `Filter jobs via ${searchjsLink}`)
+  .option("-t, --timeAgo <timeAgo>", `Get jobs since time ago via ${msLink}`)
+  .option("-s, --start <start>", "Start index (pagination)")
+  .option("-e, --end <end>", "End index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: CompletedParams) => {
       const queue = await getQueue();
@@ -172,11 +172,11 @@ vorpal
   );
 
 vorpal
-  .command("failed", "fetch failed jobs")
-  .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
-  .option("-t, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
-  .option("-s, --start <start>", "start index (pagination)")
-  .option("-e, --end <end>", "end index (pagination)")
+  .command("failed", "Fetch failed jobs")
+  .option("-f, --filter <filter>", `Filter jobs via ${searchjsLink}`)
+  .option("-t, --timeAgo <timeAgo>", `Get jobs since time ago via ${msLink}`)
+  .option("-s, --start <start>", "Start index (pagination)")
+  .option("-e, --end <end>", "End index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: FailedParams) => {
       const queue = await getQueue();
@@ -190,7 +190,7 @@ vorpal
   );
 
 vorpal
-  .command("delayed", "fetch delayed jobs")
+  .command("delayed", "Fetch delayed jobs")
   .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
   .option("-t, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .option("-s, --start <start>", "start index (pagination)")
@@ -207,7 +207,7 @@ vorpal
     })
   );
 
-vorpal.command("pause", "pause current queue").action(
+vorpal.command("pause", "Pause current queue").action(
   wrapTryCatch(async () => {
     const queue = await getQueue();
     await answer(vorpal, "Pause queue");
@@ -216,7 +216,7 @@ vorpal.command("pause", "pause current queue").action(
   })
 );
 
-vorpal.command("resume", "resume current queue from pause").action(
+vorpal.command("resume", "Resume current queue from pause").action(
   wrapTryCatch(async () => {
     const queue = await getQueue();
     await answer(vorpal, "Resume queue");
@@ -225,7 +225,7 @@ vorpal.command("resume", "resume current queue from pause").action(
   })
 );
 
-vorpal.command("get <jobId...>", "get job").action(
+vorpal.command("get <jobId...>", "Get job").action(
   wrapTryCatch(async ({ jobId }: GetParams) => {
     const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
     notFoundIds.length && logYellow(`Not found jobs: ${notFoundIds}`);
@@ -234,7 +234,7 @@ vorpal.command("get <jobId...>", "get job").action(
 );
 
 vorpal
-  .command("add <data>", "add job to queue")
+  .command("add <data>", "Add job to queue e.g. add '{\"x\": 1}'")
   .option("-n, --name <name>", "name for named job")
   .action(
     wrapTryCatch(async function({ data, options }: AddParams) {
@@ -243,7 +243,7 @@ vorpal
       try {
         jobData = JSON.parse(data);
       } catch (e) {
-        return throwYellow(`Error occured, seems "data" incorrect json`);
+        return throwYellow(`Error: Argument <data> is invalid: ${e}`);
       }
       await answer(vorpal, "Add");
       const jobName: string = options.name || "__default__";
@@ -252,7 +252,7 @@ vorpal
     })
   );
 
-vorpal.command("rm <jobId...>", "remove job").action(
+vorpal.command("rm <jobId...>", "Remove job").action(
   wrapTryCatch(async function({ jobId }: RmParams) {
     await answer(vorpal, "Remove");
     const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
@@ -262,7 +262,7 @@ vorpal.command("rm <jobId...>", "remove job").action(
   })
 );
 
-vorpal.command("retry <jobId...>", "retry job").action(
+vorpal.command("retry <jobId...>", "Retry job").action(
   wrapTryCatch(async function({ jobId }: RetryParams) {
     await answer(vorpal, "Retry");
     const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
@@ -272,7 +272,7 @@ vorpal.command("retry <jobId...>", "retry job").action(
   })
 );
 
-vorpal.command("retry-failed", "retry first 100 failed jobs").action(
+vorpal.command("retry-failed", "Retry first 100 failed jobs").action(
   wrapTryCatch(async function() {
     const queue = await getQueue();
     await answer(vorpal, "Retry failed jobs");
@@ -282,7 +282,7 @@ vorpal.command("retry-failed", "retry first 100 failed jobs").action(
   })
 );
 
-vorpal.command("promote <jobId...>", "promote job").action(
+vorpal.command("promote <jobId...>", "Promote job").action(
   wrapTryCatch(async function({ jobId }: PromoteParams) {
     await answer(vorpal, "Promote");
     const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
@@ -292,7 +292,7 @@ vorpal.command("promote <jobId...>", "promote job").action(
   })
 );
 
-vorpal.command("fail <jobId> <reason>", "fail job").action(
+vorpal.command("fail <jobId> <reason>", "Move job to failed").action(
   wrapTryCatch(async function({ jobId, reason }: FailParams) {
     await getQueue();
     const job = await getJob(jobId);
@@ -302,20 +302,21 @@ vorpal.command("fail <jobId> <reason>", "fail job").action(
   })
 );
 
-vorpal.command("complete <jobId> <data>", "complete job").action(
-  wrapTryCatch(async function({ jobId, data }: CompleteParams) {
-    await getQueue();
-    const job = await getJob(jobId);
-    let returnValue: string;
-    try {
-      returnValue = JSON.parse(data);
-    } catch (e) {
-      return throwYellow(`Error occured, seems "data" incorrect json`);
-    }
-    await answer(vorpal, "Complete");
-    await job.moveToCompleted(returnValue, true);
-    logGreen(`Job "${jobId}" completed`);
-  })
+vorpal.command("complete <jobId> <data>", "Move job to completed e.g. complete 1 '{\"x\": 1}'")
+  .action(
+    wrapTryCatch(async function({ jobId, data }: CompleteParams) {
+      await getQueue();
+      const job = await getJob(jobId);
+      let returnValue: string;
+      try {
+        returnValue = JSON.parse(data);
+      } catch (e) {
+        return throwYellow(`Error: Argument <data> is invalid: ${e}`);
+      }
+      await answer(vorpal, "Complete");
+      await job.moveToCompleted(returnValue, true);
+      logGreen(`Job "${jobId}" completed`);
+    })
 );
 
 vorpal
@@ -333,6 +334,7 @@ vorpal
   )
   .action(
     wrapTryCatch(async function({ period, options }: CleanParams) {
+      const types = ["completed", "wait", "active", "delayed", "failed"];
       const queue = await getQueue();
       const grace = period && period.length ? ms(period as string) : void 0;
       if (!grace) {
@@ -340,10 +342,10 @@ vorpal
       }
       const status = options.status || "completed";
       if (
-        !["completed", "wait", "active", "delayed", "failed"].includes(status)
+        !types.includes(status)
       ) {
         return throwYellow(
-          "Incorrect status, should be: completed or wait or active or delayed or failed"
+          `Unknown status, must be one of: ${types.join(", ")}`
         );
       }
       await answer(vorpal, "Clean");
@@ -356,7 +358,7 @@ vorpal
   );
 
 vorpal
-  .command("logs <jobId>", "get logs of job")
+  .command("logs <jobId>", "Get logs of job")
   .option("-s, --start <start>", "Start of logs")
   .option("-e, --end <end>", "End of logs")
   .action(
@@ -375,7 +377,7 @@ vorpal
     })
   );
 
-vorpal.command("log <jobId> <data>", "add log to job").action(
+vorpal.command("log <jobId> <data>", "Add log to job").action(
   wrapTryCatch(async function({ jobId, data }: LogParams) {
     await getQueue();
     const job = await getJob(jobId);

@@ -47,7 +47,7 @@ export const getFilter = (filter?: string) => {
     try {
       resolve(JSON.parse(filter || "{}"));
     } catch (e) {
-      throwYellow(`Error occured, seems passed "filter" incorrect json`);
+      throwYellow(`Error: Argument to --filter is invalid: ${e}`);
     }
   });
 };
@@ -59,7 +59,7 @@ export const getTimeAgoFilter = (timeAgo?: string) => {
       const filter = msAgo ? { timestamp: { gte: Date.now() - msAgo } } : {};
       resolve(filter);
     } catch (e) {
-      throwYellow(`Error occured, seems passed "timeAgo" incorrect`);
+      throwYellow(`Error: Argument to --timeAgo is invalid: ${e}`);
     }
   });
 };
@@ -70,6 +70,7 @@ export const logArray = (arr: Array<unknown>) => {
     depth: null,
     maxArrayLength: Infinity
   });
+  console.log(`count: ${chalk.yellow(arr.length)}`)
 };
 
 export const searchjsLink = terminalLink(
