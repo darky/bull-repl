@@ -12,8 +12,9 @@ export type Answer = {
 
 export type ConnectParams = {
   queue: string;
-  options: {
+  options: {    
     prefix?: string;
+    uri?: string;
     host?: string;
     port?: number;
     db?: number;

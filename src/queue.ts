@@ -18,10 +18,10 @@ export async function getQueue() {
 export async function setQueue(
   name: string,
   prefix: string,
-  options: IORedis.RedisOptions
+  options: string|IORedis.RedisOptions
 ) {
   queue && (await queue.close());
-  const client = new IORedis(options);
+  const client = new IORedis(options as any);
   queue = new Queue(name, { connection: client, ...{ prefix } });
   await queue.waitUntilReady();
   return queue;
@@ -42,7 +42,7 @@ export async function connectToQueue(
         rejectUnauthorized: false
       }
     : void 0;
-  await setQueue(name, prefix, {
+  await setQueue(name, prefix, options.uri || {
     host,
     port,
     db,
