@@ -1,6 +1,6 @@
 {
   "name": "bull-repl",
-  "version": "1.4.1",
+  "version": "1.5.0",
   "description": "Bull / BullMQ queue command line REPL",
   "repository": {
     "type": "git",
@@ -30,14 +30,14 @@
     "@types/node": "14.0.14",
     "@types/vorpal": "1.12.0",
     "ts-node": "8.10.2",
-    "type-coverage": "2.7.2",
+    "type-coverage": "2.8.2",
     "typescript": "3.9.5"
   },
   "scripts": {
-    "build": "npx type-coverage --at-least 100 --ignore-catch; rm index.js; tsc --build tsconfig.json; gsed -i '1 i #!/usr/bin/env node' index.js; chmod +x index.js",
+    "build": "npx type-coverage --at-least 100 --ignore-catch; rm index.js; tsc --build tsconfig.json; sed -i '1 i #!/usr/bin/env node' index.js; chmod +x index.js",
     "dev": "TS_NODE_TRANSPILE_ONLY=true TS_NODE_PREFER_TS_EXTS=true node --inspect -r ts-node/register index.ts",
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "npm run build"
+    "prepublishOnly": "npm run build"
   },
   "keywords": [
     "bull",
