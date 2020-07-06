@@ -4,7 +4,7 @@ Bull / BullMQ queue command line REPL.
 
 ### Version compatibility
 
-- For bull 3.x.x use `bull-repl@^0.24.0`
+- For bull 3.x.x use `bull-repl@latest`
 - For bullmq use `bull-repl@next`
 
 ### Doc
