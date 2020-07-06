@@ -2,9 +2,10 @@
 
 Bull / BullMQ queue command line REPL.
 
-### BullMQ 4 Beta
+### Version compatibility
 
-You can try bull-repl with upcoming BullMQ via `npm install bull-repl@next`
+- For bull 3.x.x use `bull-repl@^0.24.0`
+- For bullmq use `bull-repl@next`
 
 ### Doc
 
