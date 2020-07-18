@@ -1,6 +1,6 @@
 import { JobAdditional, Answer } from "./types";
 import { Job } from "bullmq";
-import { matchArray } from "searchjs";
+import { run } from "node-jq";
 import chalk from "chalk";
 import ms from "ms";
 import terminalLink from "terminal-link";
@@ -18,9 +18,9 @@ export const getJob = async (jobId: string): Promise<Job<unknown, unknown>> => {
   return job;
 };
 
-export const showJobs = (arr: Array<Job>, filter: object) => {
+export const showJobs = async (arr: Array<Job>, query: string) => {
   const jobs = arr as Array<Job & JobAdditional>;
-  const data = jobs
+  const root = jobs
     .filter(j => j)
     .map(job => ({
       id: job.id,
@@ -38,25 +38,15 @@ export const showJobs = (arr: Array<Job>, filter: object) => {
       delay: job.delay,
       progress: job.progress
     }));
-  const filteredData = matchArray(data, filter);
-  logArray(filteredData);
-};
-
-export const getFilter = (filter?: string) => {
-  return new Promise<object>(resolve => {
-    try {
-      resolve(JSON.parse(filter || "{}"));
-    } catch (e) {
-      throwYellow(`Error: Argument to --filter is invalid: ${e}`);
-    }
-  });
+  const filteredData = query ? ((await run(query, {root}, {input: 'json', output: 'json'})) as unknown) : {root};
+  logArray((<{root?: unknown}>filteredData)?.root ?? filteredData);
 };
 
 export const getTimeAgoFilter = (timeAgo?: string) => {
-  return new Promise<object>(resolve => {
+  return new Promise<string>(resolve => {
     try {
       const msAgo = timeAgo && timeAgo.length ? ms(timeAgo) : void 0;
-      const filter = msAgo ? { timestamp: { gte: Date.now() - msAgo } } : {};
+      const filter = msAgo ? `{root: [.root[] | select((.timestamp | strptime("%Y-%m-%dT%H:%M:%S.%3Z") | mktime | . * 1000) >= ${Date.now() - msAgo})]}` : '';
       resolve(filter);
     } catch (e) {
       throwYellow(`Error: Argument to --timeAgo is invalid: ${e}`);
@@ -64,18 +54,18 @@ export const getTimeAgoFilter = (timeAgo?: string) => {
   });
 };
 
-export const logArray = (arr: Array<unknown>) => {
+export const logArray = (arr: unknown) => {
   console.dir(arr, {
     colors: true,
     depth: null,
-    maxArrayLength: Infinity
+    maxArrayLength: Infinity,
   });
-  console.log(`count: ${chalk.yellow(arr.length)}`)
+  Array.isArray(arr) && console.log(`count: ${chalk.yellow(arr.length)}`)
 };
 
-export const searchjsLink = terminalLink(
-  "searchjs",
-  "https://github.com/deitch/searchjs#examples"
+export const jqLink = terminalLink(
+  "jq",
+  "https://stedolan.github.io/jq/manual/#Basicfilters"
 );
 
 export const msLink = terminalLink("ms", "https://github.com/zeit/ms#examples");
