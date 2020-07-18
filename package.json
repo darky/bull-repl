@@ -18,7 +18,7 @@
   ],
   "dependencies": {
     "@moleculer/vorpal": "1.11.5",
-    "bullmq": "1.8.13",
+    "bullmq": "1.8.14",
     "chalk": "4.1.0",
     "ioredis": "4.17.3",
     "ms": "2.1.2",
