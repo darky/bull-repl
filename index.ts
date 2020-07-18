@@ -22,9 +22,8 @@ import Vorpal from "@moleculer/vorpal";
 import ms from "ms";
 import {
   showJobs,
-  getFilter,
   getTimeAgoFilter,
-  searchjsLink,
+  jqLink,
   msLink,
   logArray,
   getJob,
@@ -119,91 +118,80 @@ vorpal.command("stats", "Count of jobs by type").action(
 
 vorpal
   .command("active", "Fetch active jobs")
-  .option("-f, --filter <filter>", `Filter jobs via ${searchjsLink}`)
+  .option("-q, --query <query>", `Query jobs via jq - ${jqLink}. Notice, that bull data in root key e.g '[.root[] | select(.progress > 70)]'`)
   .option("-t, --timeAgo <timeAgo>", `Get jobs since time ago via ${msLink}`)
   .option("-s, --start <start>", "Start index (pagination)")
   .option("-e, --end <end>", "End index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: ActiveParams) => {
       const queue = await getQueue();
-      const filter = await getFilter(options.filter);
       const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
-      showJobs(await queue.getActive(options.start || 0, options.end || 100), {
-        ...filter,
-        ...timeAgoFilter
-      });
+      showJobs(await queue.getActive(
+        options.start || 0, options.end || 100),
+        [timeAgoFilter, options.query].filter(v => v).join(' | '));
     })
   );
 
 vorpal
   .command("waiting", "Fetch waiting jobs")
-  .option("-f, --filter <filter>", `Filter jobs via ${searchjsLink}`)
+  .option("-q, --query <query>", `Query jobs via jq - ${jqLink}. Notice, that bull data in root key e.g '[.root[] | select(.progress > 70)]'`)
   .option("-t, --timeAgo <timeAgo>", `Get jobs since time ago via ${msLink}`)
   .option("-s, --start <start>", "Start index (pagination)")
   .option("-e, --end <end>", "End index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: WaitingParams) => {
       const queue = await getQueue();
-      const filter = await getFilter(options.filter);
       const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
-      showJobs(await queue.getWaiting(options.start || 0, options.end || 100), {
-        ...filter,
-        ...timeAgoFilter
-      });
+      showJobs(await queue.getWaiting(
+        options.start || 0, options.end || 100),
+        [timeAgoFilter, options.query].filter(v => v).join(' | '));
     })
   );
 
 vorpal
   .command("completed", "Fetch completed jobs")
-  .option("-f, --filter <filter>", `Filter jobs via ${searchjsLink}`)
+  .option("-q, --query <query>", `Query jobs via jq - ${jqLink}. Notice, that bull data in root key e.g '[.root[] | select(.progress > 70)]'`)
   .option("-t, --timeAgo <timeAgo>", `Get jobs since time ago via ${msLink}`)
   .option("-s, --start <start>", "Start index (pagination)")
   .option("-e, --end <end>", "End index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: CompletedParams) => {
       const queue = await getQueue();
-      const filter = await getFilter(options.filter);
       const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
       showJobs(
         await queue.getCompleted(options.start || 0, options.end || 100),
-        { ...filter, ...timeAgoFilter }
+        [timeAgoFilter, options.query].filter(v => v).join(' | ')
       );
     })
   );
 
 vorpal
   .command("failed", "Fetch failed jobs")
-  .option("-f, --filter <filter>", `Filter jobs via ${searchjsLink}`)
+  .option("-q, --query <query>", `Query jobs via jq - ${jqLink}. Notice, that bull data in root key e.g '[.root[] | select(.progress > 70)]'`)
   .option("-t, --timeAgo <timeAgo>", `Get jobs since time ago via ${msLink}`)
   .option("-s, --start <start>", "Start index (pagination)")
   .option("-e, --end <end>", "End index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: FailedParams) => {
       const queue = await getQueue();
-      const filter = await getFilter(options.filter);
       const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
-      showJobs(await queue.getFailed(options.start || 0, options.end || 100), {
-        ...filter,
-        ...timeAgoFilter
-      });
+      showJobs(await queue.getFailed(options.start || 0, options.end || 100),
+        [timeAgoFilter, options.query].filter(v => v).join(' | '));
     })
   );
 
 vorpal
   .command("delayed", "Fetch delayed jobs")
-  .option("-f, --filter <filter>", `filter jobs via ${searchjsLink}`)
+  .option("-q, --query <query>", `Query jobs via jq - ${jqLink}. Notice, that bull data in root key e.g '[.root[] | select(.progress > 70)]'`)
   .option("-t, --timeAgo <timeAgo>", `get jobs since time ago via ${msLink}`)
   .option("-s, --start <start>", "start index (pagination)")
   .option("-e, --end <end>", "end index (pagination)")
   .action(
     wrapTryCatch(async ({ options }: DelayedParams) => {
       const queue = await getQueue();
-      const filter = await getFilter(options.filter);
       const timeAgoFilter = await getTimeAgoFilter(options.timeAgo);
-      showJobs(await queue.getDelayed(options.start || 0, options.end || 100), {
-        ...filter,
-        ...timeAgoFilter
-      });
+      showJobs(await queue.getDelayed(options.start || 0, options.end || 100),
+        [timeAgoFilter, options.query].filter(v => v).join(' | '));
     })
   );
 
@@ -229,7 +217,7 @@ vorpal.command("get <jobId...>", "Get job").action(
   wrapTryCatch(async ({ jobId }: GetParams) => {
     const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
     notFoundIds.length && logYellow(`Not found jobs: ${notFoundIds}`);
-    foundJobs.length && showJobs(foundJobs, {});
+    foundJobs.length && showJobs(foundJobs, '');
   })
 );
 

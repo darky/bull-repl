@@ -24,7 +24,7 @@ export type ConnectParams = {
 
 export type ActiveParams = {
   options: {
-    filter?: string;
+    query?: string;
     timeAgo?: string;
     start?: number;
     end?: number;
