@@ -54,6 +54,8 @@ help
     clean [options] <period>   Clean queue for period ago, period format - https://github.com/zeit/ms#examples
     logs [options] <jobId>     Get logs of job
     log <jobId> <data>         Add log to job
+    events-on                  Turn on logging of queue events
+    events-off                 Turn off logging of queue events
 ```
 
 ### Connect help

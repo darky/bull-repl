@@ -36,7 +36,7 @@ import {
   LAST_SAVED_CONNECTION_NAME,
   getBootCommand
 } from "./src/utils";
-import { getQueue, connectToQueue } from "./src/queue";
+import { getQueue, connectToQueue, listenQueueEvents, unlistenQueueEvents } from "./src/queue";
 
 export const vorpal = new Vorpal();
 vorpal.localStorage("bull-repl-default");
@@ -372,6 +372,22 @@ vorpal.command("log <jobId> <data>", "Add log to job").action(
     await answer(vorpal, "Add log");
     await job.log(data);
     logGreen("Log added to job");
+  })
+);
+
+vorpal.command("events-on", "Turn on logging of queue events").action(
+  wrapTryCatch(async function() {
+    const queue = await getQueue();
+    listenQueueEvents(queue);
+    logGreen(`Logging of queue events enabled`);
+  })
+);
+
+vorpal.command("events-off", "Turn off logging of queue events").action(
+  wrapTryCatch(async function() {
+    const queue = await getQueue();
+    unlistenQueueEvents(queue);
+    logGreen(`Logging of queue events disabled`);
   })
 );
 

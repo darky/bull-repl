@@ -83,6 +83,10 @@ export const logYellow = (msg: string) => {
   console.log(chalk.yellow(msg));
 };
 
+export const logBlue = (msg: string) => {
+  console.log(chalk.blueBright(msg));
+};
+
 export const throwYellow = (msg: string): never => {
   let err = new Error();
   ((err as unknown) as { yellow: boolean }).yellow = true;
