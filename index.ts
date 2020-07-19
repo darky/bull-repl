@@ -394,8 +394,8 @@ vorpal.command("events-on", "Turn on logging of queue events").action(
 
 vorpal.command("events-off", "Turn off logging of queue events").action(
   wrapTryCatch(async function() {
-    const queue = await getQueue();
-    unlistenQueueEvents(queue);
+    await getQueue();
+    unlistenQueueEvents();
     logGreen(`Logging of queue events disabled`);
   })
 );
