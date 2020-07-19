@@ -3,7 +3,6 @@ import { Job } from "bullmq";
 import { run } from "node-jq";
 import chalk from "chalk";
 import ms from "ms";
-import terminalLink from "terminal-link";
 import { getQueue } from "./queue";
 import Vorpal from "@moleculer/vorpal";
 
@@ -63,12 +62,8 @@ export const logArray = (arr: unknown) => {
   Array.isArray(arr) && console.log(`count: ${chalk.yellow(arr.length)}`)
 };
 
-export const jqLink = terminalLink(
-  "jq",
-  "https://stedolan.github.io/jq/manual/#Basicfilters"
-);
-
-export const msLink = terminalLink("ms", "https://github.com/zeit/ms#examples");
+export const jqLink = "https://stedolan.github.io/jq/manual/#Basicfilters";
+export const msLink = "https://github.com/zeit/ms#examples";
 
 export const answer = async (vorpal: Vorpal, question: string) => {
   const answer = (await vorpal.activeCommand.prompt({
@@ -86,6 +81,10 @@ export const logGreen = (msg: string) => {
 
 export const logYellow = (msg: string) => {
   console.log(chalk.yellow(msg));
+};
+
+export const logBlue = (msg: string) => {
+  console.log(chalk.blueBright(msg));
 };
 
 export const throwYellow = (msg: string): never => {

@@ -4,14 +4,24 @@ Bull / BullMQ queue command line REPL.
 
 ### Version compatibility
 
-- For bull 3.x.x use `bull-repl@latest`
-- For bullmq use `bull-repl@next`
+- For bull 3.x.x use `bull-repl@latest` (0.x.x)
+- For bullmq use `bull-repl@next` (1.x.x)
 
-### Doc
+### Install
 
 ```
 npm install bull-repl -g
+```
+
+### Run
+
+```
 bull-repl
+```
+
+### Overview help
+
+```
 help
 ```
 
@@ -41,12 +51,56 @@ help
     promote <jobId...>         Promote job
     fail <jobId> <reason>      Move job to failed
     complete <jobId> <data>    Move job to completed e.g. complete 1 '{"x": 1}'
-    clean [options] <period>   Clean queue for period ago, period format - ms (https://github.com/zeit/ms#examples)
+    clean [options] <period>   Clean queue for period ago, period format - https://github.com/zeit/ms#examples
     logs [options] <jobId>     Get logs of job
     log <jobId> <data>         Add log to job
+    events-on                  Turn on logging of queue events
+    events-off                 Turn off logging of queue events
+```
+
+### Connect help
+
+```
+connect --help
+```
+
+```
+  Usage: connect [options] <queue>
+
+  Connect to bull queue
+
+  Options:
+
+    --help                 output usage information
+    --prefix <prefix>      Prefix to use for all queue jobs
+    -h, --host <host>      Redis host for connection
+    -p, --port <port>      Redis port for connection
+    -d, --db <db>          Redis db for connection
+    --password <password>  Redis password for connection
+    -c, --cert <cert>      Absolute path to pem certificate if TLS used
+```
+
+### Fetch jobs by group help
+
+```
+active --help
+```
+
+```
+  Usage: active [options]
+
+  Fetch active jobs
+
+  Options:
+
+    --help                   output usage information
+    -q, --query <query>      Query jobs via jq - https://stedolan.github.io/jq/manual/#Basicfilters. Notice, that bull data in root key e.g '[.root[] | select(.progress > 70)]'
+    -t, --timeAgo <timeAgo>  Get jobs since time ago via https://github.com/zeit/ms#examples
+    -s, --start <start>      Start index (pagination)
+    -e, --end <end>          End index (pagination)
 ```
 
 ### Notes
 
 - You can see help on each command, for example: `connect --help`
-- Also you can predefine startup command, when run bull-repl. For example: `bull-repl connect my-queue`
+- You can predefine startup command, when run bull-repl. For example: `bull-repl connect my-queue`
