@@ -125,12 +125,6 @@ export function wrapTryCatch(fn: Function) {
   };
 }
 
-export function getBootCommand(vorpal: Vorpal) {
-  const parsed = (vorpal.parse as any)(process.argv, {
-    use: "minimist"
-  }) as { _: string[] };
-  if (Array.isArray(parsed._)) {
-    return parsed._.join(" ");
-  }
-  return "";
+export function getBootCommand() {
+  return process.argv.slice(2).join(' ');
 }

@@ -393,8 +393,9 @@ vorpal.command("events-off", "Turn off logging of queue events").action(
 
 vorpal.history("bull-repl-default");
 
-const command = getBootCommand(vorpal.delimiter("BULL-REPL> ").show());
+vorpal.delimiter("BULL-REPL> ").show();
 
+const command = getBootCommand();
 if (command) {
   vorpal.exec(command);
 }
