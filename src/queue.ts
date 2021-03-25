@@ -19,7 +19,7 @@ export async function getQueue() {
 export async function setQueue(
   name: string,
   prefix: string,
-  options: string|IORedis.RedisOptions
+  options: string | IORedis.RedisOptions
 ) {
   unlistenQueueEvents();
   queue && (await queue.close());
@@ -38,12 +38,18 @@ export async function connectToQueue(
   const port = options.port || 6379;
   const db = options.db ?? 0;
   const password = options.password || void 0;
-  const tls = options.cert
-    ? {
-        ca: fs.readFileSync(options.cert),
-        rejectUnauthorized: false
-      }
-    : void 0;
+  let tls;
+  if (options.acceptUnauthorized) {
+    tls = { rejectUnauthorized: false };
+  } else if (options.cert) {
+    tls = {
+      ca: fs.readFileSync(options.cert),
+      rejectUnauthorized: false
+    };
+  } else {
+    tls = void 0;
+  }
+
   await setQueue(name, prefix, options.uri || {
     host,
     port,

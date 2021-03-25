@@ -2,21 +2,19 @@
 
 Bull / BullMQ queue command line REPL.
 
-### Version compatibility
-
-- For bull 3.x.x use `bull-repl@latest` (0.x.x)
-- For bullmq use `bull-repl@next` (1.x.x)
-
 ### Install
 
 ```
-npm install bull-repl -g
+git clone https://github.com/jesusprubio/bull-repl
+cd bull-repl
+npm i
+npm run build
 ```
 
 ### Run
 
 ```
-bull-repl
+node .
 ```
 
 ### Overview help

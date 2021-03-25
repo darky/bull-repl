@@ -18,7 +18,9 @@ export type ConnectParams = {
     host?: string;
     port?: number;
     db?: number;
+    username?: string;
     password?: string;
+    acceptUnauthorized?: boolean;
     cert?: string;
   };
 };

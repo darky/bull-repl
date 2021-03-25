@@ -52,8 +52,10 @@ vorpal
   .option("-h, --host <host>", "Redis host for connection")
   .option("-p, --port <port>", "Redis port for connection")
   .option("-d, --db <db>", "Redis db for connection")
+  .option("--username <username>", "Redis username for connection")
   .option("--password <password>", "Redis password for connection")
   .option("-c, --cert <cert>", "Absolute path to pem certificate if TLS used")
+  .option("--acceptUnauthorized", "Avoid the verification of the server certificate against the list of supplied CAs")
   .action(
     wrapTryCatch(async (params: ConnectParams) => {
       await connectToQueue(params, vorpal);
