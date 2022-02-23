@@ -3,6 +3,7 @@ import { throwYellow, logGreen, LAST_SAVED_CONNECTION_NAME, logBlue, logYellow }
 import { ConnectParams } from "./types";
 import fs from "fs";
 import Vorpal from "@moleculer/vorpal";
+import redisUrlPlus from "redis-url-plus";
 
 let queue: TQueue | void;
 let listenEventsOn = false;
@@ -29,25 +30,26 @@ export async function connectToQueue(
   vorpal: Vorpal
 ) {
   const prefix = options.prefix || "bull";
-  const host = options.host || "localhost";
-  const port = options.port || 6379;
-  const db = options.db ?? 0;
-  const password = options.password || void 0;
-  const tls = options.cert
-    ? {
-        ca: fs.readFileSync(options.cert),
-        rejectUnauthorized: false
-      }
-    : void 0;
+  let redisOptions;
+  if (options.url) {
+    redisOptions = redisUrlPlus(options.url);
+  } else {
+    redisOptions = {
+      host: options.host || "localhost",
+      port: options.port || 6379,
+      db: options.db ?? 0,
+      password: options.password || void 0,
+      tls: options.cert
+        ? {
+          ca: fs.readFileSync(options.cert),
+          rejectUnauthorized: false
+        }
+        : void 0,
+    };
+  }
   await setQueue(name, "", {
     prefix,
-    redis: {
-      host,
-      port,
-      db,
-      password,
-      tls
-    }
+    redis: redisOptions
   });
   (<WindowLocalStorage["localStorage"]>(<unknown>vorpal.localStorage)).setItem(
     LAST_SAVED_CONNECTION_NAME,
@@ -56,7 +58,7 @@ export async function connectToQueue(
       options
     } as ConnectParams)
   );
-  logGreen(`Connected to ${host}:${port}, prefix: ${prefix}, queue: ${name}`);
+  logGreen(`Connected to ${redisOptions.host}:${redisOptions.port}, prefix: ${prefix}, queue: ${name}`);
   vorpal.delimiter(`BULL-REPL | ${prefix}.${name}> `).show();
 }
 
