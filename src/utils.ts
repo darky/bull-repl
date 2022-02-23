@@ -65,7 +65,11 @@ export const logArray = (arr: unknown) => {
 export const jqLink = "https://stedolan.github.io/jq/manual/#Basicfilters";
 export const msLink = "https://github.com/zeit/ms#examples";
 
-export const answer = async (vorpal: Vorpal, question: string) => {
+export const answer = async (vorpal: Vorpal, question: string, forceYes?: boolean) => {
+  if(forceYes){
+    logYellow(`Assuming yes for ${question}`);
+    return;
+  }
   const answer = (await vorpal.activeCommand.prompt({
     name: "a",
     message: `${question}? (y/n): `

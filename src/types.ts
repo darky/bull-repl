@@ -39,12 +39,16 @@ export type DelayedParams = ActiveParams;
 
 export type GetParams = {
   jobId: string[];
+  options: {
+    yes?: boolean;
+  };
 };
 
 export type AddParams = {
   data: string;
   options: {
     name?: string;
+    yes?: boolean;
   };
 };
 
@@ -55,11 +59,17 @@ export type PromoteParams = GetParams;
 export type FailParams = {
   jobId: string;
   reason: string;
+  options: {
+    yes?: boolean;
+  }
 };
 
 export type CompleteParams = {
   jobId: string;
   data: string;
+  options: {
+    yes?: boolean;
+  };
 };
 
 export type CleanParams = {
@@ -67,6 +77,7 @@ export type CleanParams = {
   options: {
     status?: "completed" | "wait" | "active" | "delayed" | "failed";
     limit?: number;
+    yes?: boolean;
   };
 };
 
@@ -81,4 +92,13 @@ export type LogsParams = {
 export type LogParams = {
   jobId: string;
   data: string;
+  options: {
+    yes?: boolean;
+  }
 };
+
+export type YesParams = {
+  options: {
+    yes?: boolean;
+  }
+}

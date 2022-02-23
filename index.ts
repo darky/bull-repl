@@ -16,7 +16,8 @@ import {
   CompleteParams,
   CleanParams,
   LogsParams,
-  LogParams
+  LogParams,
+  YesParams
 } from "./src/types";
 import Vorpal from "@moleculer/vorpal";
 import ms from "ms";
@@ -203,23 +204,35 @@ vorpal
     })
   );
 
-vorpal.command("pause", "Pause current queue").action(
-  wrapTryCatch(async () => {
-    const queue = await getQueue();
-    await answer(vorpal, "Pause queue");
-    await queue.pause(false);
-    logGreen(`Queue paused`);
-  })
-);
+vorpal
+  .command("pause", "Pause current queue")
+  .option(
+    "-y, --yes",
+    "Skip answer validation"
+  )
+  .action(
+    wrapTryCatch(async ({ options }: YesParams) => {
+      const queue = await getQueue();
+      await answer(vorpal, "Pause queue", options.yes);
+      await queue.pause(false);
+      logGreen(`Queue paused`);
+    })
+  );
 
-vorpal.command("resume", "Resume current queue from pause").action(
-  wrapTryCatch(async () => {
-    const queue = await getQueue();
-    await answer(vorpal, "Resume queue");
-    await queue.resume(false);
-    logGreen(`Queue resumed from pause`);
-  })
-);
+vorpal
+  .command("resume", "Resume current queue from pause")
+  .option(
+    "-y, --yes",
+    "Skip answer validation"
+  )
+  .action(
+    wrapTryCatch(async ({ options }: YesParams) => {
+      const queue = await getQueue();
+      await answer(vorpal, "Resume queue", options.yes);
+      await queue.resume(false);
+      logGreen(`Queue resumed from pause`);
+    })
+  );
 
 vorpal.command("get <jobId...>", "Get job").action(
   wrapTryCatch(async ({ jobId }: GetParams) => {
@@ -232,6 +245,10 @@ vorpal.command("get <jobId...>", "Get job").action(
 vorpal
   .command("add <data>", "Add job to queue e.g. add '{\"x\": 1}'")
   .option("-n, --name <name>", "name for named job")
+  .option(
+    "-y, --yes",
+    "Skip answer validation"
+  )
   .action(
     wrapTryCatch(async function({ data, options }: AddParams) {
       const queue = await getQueue();
@@ -241,66 +258,101 @@ vorpal
       } catch (e) {
         return throwYellow(`Error: Argument <data> is invalid: ${e}`);
       }
-      await answer(vorpal, "Add");
+      await answer(vorpal, "Add", options.yes);
       const jobName: string = options.name || "__default__";
       const addedJob = await queue.add(jobName, jobData);
       logGreen(`Job with name '${jobName}', id '${addedJob.id}' added`);
     })
   );
 
-vorpal.command("rm <jobId...>", "Remove job").action(
-  wrapTryCatch(async function({ jobId }: RmParams) {
-    await answer(vorpal, "Remove");
-    const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
-    await Promise.all(foundJobs.map(j => j.remove()));
-    notFoundIds.length && logYellow(`Not found jobs: ${notFoundIds}`);
-    foundJobs.length && logGreen(`Jobs "${foundJobs.map(j => j.id)}" removed`);
-  })
-);
-
-vorpal.command("retry <jobId...>", "Retry job").action(
-  wrapTryCatch(async function({ jobId }: RetryParams) {
-    await answer(vorpal, "Retry");
-    const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
-    await Promise.all(foundJobs.map(j => j.retry()));
-    notFoundIds.length && logYellow(`Not found jobs: ${notFoundIds}`);
-    foundJobs.length && logGreen(`Jobs "${foundJobs.map(j => j.id)}" retried`);
-  })
-);
-
-vorpal.command("retry-failed", "Retry first 100 failed jobs").action(
-  wrapTryCatch(async function() {
-    const queue = await getQueue();
-    await answer(vorpal, "Retry failed jobs");
-    const failedJobs = await queue.getFailed(0, 100);
-    await Promise.all(failedJobs.map(j => j.retry()));
-    logGreen("All failed jobs retried");
-  })
-);
-
-vorpal.command("promote <jobId...>", "Promote job").action(
-  wrapTryCatch(async function({ jobId }: PromoteParams) {
-    await answer(vorpal, "Promote");
-    const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
-    await Promise.all(foundJobs.map(j => j.promote()));
-    notFoundIds.length && logYellow(`Not found jobs: ${notFoundIds}`);
-    foundJobs.length && logGreen(`Jobs "${foundJobs.map(j => j.id)}" promoted`);
-  })
-);
-
-vorpal.command("fail <jobId> <reason>", "Move job to failed").action(
-  wrapTryCatch(async function({ jobId, reason }: FailParams) {
-    await getQueue();
-    const job = await getJob(jobId);
-    await answer(vorpal, "Fail");
-    await job.moveToFailed({ message: reason }, true);
-    logGreen(`Job "${jobId}" failed`);
-  })
-);
-
-vorpal.command("complete <jobId> <data>", "Move job to completed e.g. complete 1 '{\"x\": 1}'")
+vorpal
+  .command("rm <jobId...>", "Remove job")
+  .option(
+    "-y, --yes",
+    "Skip answer validation"
+  )
   .action(
-    wrapTryCatch(async function({ jobId, data }: CompleteParams) {
+    wrapTryCatch(async function({ jobId, options }: RmParams) {
+      await answer(vorpal, "Remove", options.yes);
+      const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
+      await Promise.all(foundJobs.map(j => j.remove()));
+      notFoundIds.length && logYellow(`Not found jobs: ${notFoundIds}`);
+      foundJobs.length && logGreen(`Jobs "${foundJobs.map(j => j.id)}" removed`);
+    })
+  );
+
+vorpal
+  .command("retry <jobId...>", "Retry job")
+  .option(
+    "-y, --yes",
+    "Skip answer validation"
+  )
+  .action(
+    wrapTryCatch(async function({ jobId, options }: RetryParams) {
+      await answer(vorpal, "Retry", options.yes);
+      const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
+      await Promise.all(foundJobs.map(j => j.retry()));
+      notFoundIds.length && logYellow(`Not found jobs: ${notFoundIds}`);
+      foundJobs.length && logGreen(`Jobs "${foundJobs.map(j => j.id)}" retried`);
+    })
+  );
+
+vorpal
+  .command("retry-failed", "Retry first 100 failed jobs")
+  .option(
+    "-y, --yes",
+    "Skip answer validation"
+  )
+  .action(
+    wrapTryCatch(async function({ options }: YesParams) {
+      const queue = await getQueue();
+      await answer(vorpal, "Retry failed jobs", options.yes);
+      const failedJobs = await queue.getFailed(0, 100);
+      await Promise.all(failedJobs.map(j => j.retry()));
+      logGreen("All failed jobs retried");
+    })
+  );
+
+vorpal
+  .command("promote <jobId...>", "Promote job")
+  .option(
+    "-y, --yes",
+    "Skip answer validation"
+  )
+  .action(
+    wrapTryCatch(async function({ jobId, options }: PromoteParams) {
+      await answer(vorpal, "Promote", options.yes);
+      const { notFoundIds, foundJobs } = await splitJobsByFound(jobId);
+      await Promise.all(foundJobs.map(j => j.promote()));
+      notFoundIds.length && logYellow(`Not found jobs: ${notFoundIds}`);
+      foundJobs.length && logGreen(`Jobs "${foundJobs.map(j => j.id)}" promoted`);
+    })
+  );
+
+vorpal
+  .command("fail <jobId> <reason>", "Move job to failed")
+  .option(
+    "-y, --yes",
+    "Skip answer validation"
+  )
+  .action(
+    wrapTryCatch(async function({ jobId, reason, options }: FailParams) {
+      await getQueue();
+      const job = await getJob(jobId);
+      await answer(vorpal, "Fail", options.yes);
+      await job.moveToFailed({ message: reason }, true);
+      logGreen(`Job "${jobId}" failed`);
+    })
+  );
+
+vorpal
+  .command("complete <jobId> <data>", "Move job to completed e.g. complete 1 '{\"x\": 1}'")
+  .option(
+    "-y, --yes",
+    "Skip answer validation"
+  )
+  .action(
+    wrapTryCatch(async function({ jobId, data, options }: CompleteParams) {
       await getQueue();
       const job = await getJob(jobId);
       let returnValue: string;
@@ -309,11 +361,11 @@ vorpal.command("complete <jobId> <data>", "Move job to completed e.g. complete 1
       } catch (e) {
         return throwYellow(`Error: Argument <data> is invalid: ${e}`);
       }
-      await answer(vorpal, "Complete");
+      await answer(vorpal, "Complete", options.yes);
       await job.moveToCompleted(returnValue, true);
       logGreen(`Job "${jobId}" completed`);
     })
-);
+  );
 
 vorpal
   .command(
@@ -327,6 +379,10 @@ vorpal
   .option(
     "-l, --limit <limit>",
     "Maximum amount of jobs to clean per call, default: all"
+  )
+  .option(
+    "-y, --yes",
+    "Skip answer validation"
   )
   .action(
     wrapTryCatch(async function({ period, options }: CleanParams) {
@@ -344,7 +400,7 @@ vorpal
           `Unknown status, must be one of: ${types.join(", ")}`
         );
       }
-      await answer(vorpal, "Clean");
+      await answer(vorpal, "Clean", options.yes);
       const limit = Number.isInteger(options.limit as number)
         ? options.limit
         : void 0;
@@ -373,15 +429,17 @@ vorpal
     })
   );
 
-vorpal.command("log <jobId> <data>", "Add log to job").action(
-  wrapTryCatch(async function({ jobId, data }: LogParams) {
-    await getQueue();
-    const job = await getJob(jobId);
-    await answer(vorpal, "Add log");
-    await job.log(data);
-    logGreen("Log added to job");
-  })
-);
+vorpal
+  .command("log <jobId> <data>", "Add log to job")
+  .action(
+    wrapTryCatch(async function({ jobId, data, options }: LogParams) {
+      await getQueue();
+      const job = await getJob(jobId);
+      await answer(vorpal, "Add log", options.yes!);
+      await job.log(data);
+      logGreen("Log added to job");
+    })
+  );
 
 vorpal.command("events-on", "Turn on logging of queue events").action(
   wrapTryCatch(async function() {
