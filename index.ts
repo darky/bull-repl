@@ -54,9 +54,16 @@ vorpal
   .option("--password <password>", "Redis password for connection")
   .option("-c, --cert <cert>", "Absolute path to pem certificate if TLS used")
   .option("-u, --url <url>", "Redis sentinel format URL")
+  .option("-e, --exec <exec>", "Exec command")
   .action(
     wrapTryCatch(async (params: ConnectParams) => {
       await connectToQueue(params, vorpal);
+      if (params.options.exec) {
+        setTimeout(async () => {
+          await vorpal.exec(params.options.exec!);
+          await vorpal.exec('exit');
+        });
+      }
     })
   );
 
