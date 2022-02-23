@@ -17,6 +17,7 @@ export type ConnectParams = {
     host?: string;
     port?: number;
     db?: number;
+    exec?: string;
     url?: string;
     password?: string;
     cert?: string;
