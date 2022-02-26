@@ -1,10 +1,10 @@
-import { JobAdditional, Answer } from "./types";
-import { Job } from "bull";
+import type { JobAdditional, Answer } from "./types";
+import type { Job } from "bull";
 import { run } from "node-jq";
 import chalk from "chalk";
 import ms from "ms";
 import { getQueue } from "./queue";
-import Vorpal from "@moleculer/vorpal";
+import type Vorpal from "@moleculer/vorpal";
 
 export const LAST_SAVED_CONNECTION_NAME = "_last-active";
 

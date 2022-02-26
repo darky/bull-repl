@@ -1,6 +1,6 @@
 /// <reference types="./typing" />
 
-import {
+import type {
   ConnectParams,
   ActiveParams,
   WaitingParams,

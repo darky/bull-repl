@@ -1,8 +1,8 @@
 import Queue, { Queue as TQueue, QueueOptions } from "bull";
 import { throwYellow, logGreen, LAST_SAVED_CONNECTION_NAME, logBlue, logYellow } from "./utils";
-import { ConnectParams } from "./types";
+import type { ConnectParams } from "./types";
 import fs from "fs";
-import Vorpal from "@moleculer/vorpal";
+import type Vorpal from "@moleculer/vorpal";
 import redisUrlPlus from "redis-url-plus";
 
 let queue: TQueue | void;
