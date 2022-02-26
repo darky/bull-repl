@@ -60,7 +60,7 @@ vorpal
     wrapTryCatch(async (params: ConnectParams) => {
       await connectToQueue(params, vorpal);
       if (params.options.exec) {
-        setTimeout(async () => {
+        process.nextTick(async () => {
           await vorpal.exec(params.options.exec!);
           await vorpal.exec('exit');
         });
@@ -435,7 +435,7 @@ vorpal
     wrapTryCatch(async function({ jobId, data, options }: LogParams) {
       await getQueue();
       const job = await getJob(jobId);
-      await answer(vorpal, "Add log", options.yes!);
+      await answer(vorpal, "Add log", options.yes);
       await job.log(data);
       logGreen("Log added to job");
     })
