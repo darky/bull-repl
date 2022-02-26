@@ -121,10 +121,10 @@ export function wrapTryCatch(fn: Function) {
     try {
       return await fn.call(this, args);
     } catch (e) {
-      if (e.yellow) {
+      if ((e as {yellow: boolean}).yellow) {
         throw e;
       }
-      return throwYellow(e.message);
+      return throwYellow((e as Error).message);
     }
   };
 }
