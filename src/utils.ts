@@ -1,10 +1,10 @@
-import { JobAdditional, Answer } from "./types";
-import { Job } from "bullmq";
+import type { JobAdditional, Answer } from "./types";
+import type { Job } from "bullmq";
 import { run } from "node-jq";
 import chalk from "chalk";
 import ms from "ms";
 import { getQueue } from "./queue";
-import Vorpal from "@moleculer/vorpal";
+import type Vorpal from "@moleculer/vorpal";
 
 export const LAST_SAVED_CONNECTION_NAME = "_last-active";
 
@@ -65,7 +65,11 @@ export const logArray = (arr: unknown) => {
 export const jqLink = "https://stedolan.github.io/jq/manual/#Basicfilters";
 export const msLink = "https://github.com/zeit/ms#examples";
 
-export const answer = async (vorpal: Vorpal, question: string) => {
+export const answer = async (vorpal: Vorpal, question: string, forceYes?: boolean) => {
+  if(forceYes){
+    logYellow(`Assuming yes for ${question}`);
+    return;
+  }
   const answer = (await vorpal.activeCommand.prompt({
     name: "a",
     message: `${question}? (y/n): `
@@ -117,10 +121,10 @@ export function wrapTryCatch(fn: Function) {
     try {
       return await fn.call(this, args);
     } catch (e) {
-      if (e.yellow) {
+      if ((e as {yellow: boolean}).yellow) {
         throw e;
       }
-      return throwYellow(e.message);
+      return throwYellow((e as Error).message);
     }
   };
 }

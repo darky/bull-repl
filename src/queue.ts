@@ -2,8 +2,8 @@ import { Queue, QueueEvents } from "bullmq";
 import { throwYellow, logGreen, LAST_SAVED_CONNECTION_NAME, logBlue, logYellow } from "./utils";
 import IORedis from "ioredis";
 import fs from "fs";
-import Vorpal from "@moleculer/vorpal";
-import { ConnectParams } from "./types";
+import type Vorpal from "@moleculer/vorpal";
+import type { ConnectParams } from "./types";
 
 let queue: Queue | void;
 let queueEvents: QueueEvents | void;
