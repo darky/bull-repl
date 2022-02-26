@@ -30,23 +30,19 @@ export async function connectToQueue(
   vorpal: Vorpal
 ) {
   const prefix = options.prefix || "bull";
-  let redisOptions;
-  if (options.url) {
-    redisOptions = redisUrlPlus(options.url);
-  } else {
-    redisOptions = {
-      host: options.host || "localhost",
-      port: options.port || 6379,
-      db: options.db ?? 0,
-      password: options.password || void 0,
-      tls: options.cert
-        ? {
-          ca: fs.readFileSync(options.cert),
-          rejectUnauthorized: false
-        }
-        : void 0,
-    };
-  }
+  const redisOptions = options.url ? redisUrlPlus(options.url) : {
+    host: options.host || "localhost",
+    port: options.port || 6379,
+    db: options.db ?? 0,
+    password: options.password || void 0,
+    tls: options.cert
+      ? {
+        ca: fs.readFileSync(options.cert),
+        rejectUnauthorized: false
+      }
+      : void 0,
+  };
+
   await setQueue(name, "", {
     prefix,
     redis: redisOptions
