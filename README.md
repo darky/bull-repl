@@ -28,34 +28,34 @@ help
 ```
   Commands:
 
-    help [command...]          Provides help for a given command.
-    exit                       Exits application.
-    connect [options] <queue>  Connect to bull queue
-    connect-list               List of saved connections
-    connect-rm <name>          Remove saved connection
-    connect-save <name>        Save current connection
-    connect-to <name>          Connect to saved connection
-    stats                      Count of jobs by type
-    active [options]           Fetch active jobs
-    waiting [options]          Fetch waiting jobs
-    completed [options]        Fetch completed jobs
-    failed [options]           Fetch failed jobs
-    delayed [options]          Fetch delayed jobs
-    pause                      Pause current queue
-    resume                     Resume current queue from pause
-    get <jobId...>             Get job
-    add [options] <data>       Add job to queue e.g. add '{"x": 1}'
-    rm <jobId...>              Remove job
-    retry <jobId...>           Retry job
-    retry-failed               Retry first 100 failed jobs
-    promote <jobId...>         Promote job
-    fail <jobId> <reason>      Move job to failed
-    complete <jobId> <data>    Move job to completed e.g. complete 1 '{"x": 1}'
-    clean [options] <period>   Clean queue for period ago, period format - https://github.com/zeit/ms#examples
-    logs [options] <jobId>     Get logs of job
-    log <jobId> <data>         Add log to job
-    events-on                  Turn on logging of queue events
-    events-off                 Turn off logging of queue events
+    help [command...]                  Provides help for a given command.
+    exit                               Exits application.
+    connect [options] <queue>          Connect to bull queue
+    connect-list                       List of saved connections
+    connect-rm <name>                  Remove saved connection
+    connect-save <name>                Save current connection
+    connect-to <name>                  Connect to saved connection
+    stats                              Count of jobs by type
+    active [options]                   Fetch active jobs
+    waiting [options]                  Fetch waiting jobs
+    completed [options]                Fetch completed jobs
+    failed [options]                   Fetch failed jobs
+    delayed [options]                  Fetch delayed jobs
+    pause [options]                    Pause current queue
+    resume [options]                   Resume current queue from pause
+    get <jobId...>                     Get job
+    add [options] <data>               Add job to queue e.g. add '{"x": 1}'
+    rm [options] <jobId...>            Remove job
+    retry [options] <jobId...>         Retry job
+    retry-failed [options]             Retry first 100 failed jobs
+    promote [options] <jobId...>       Promote job
+    fail [options] <jobId> <reason>    Move job to failed
+    complete [options] <jobId> <data>  Move job to completed e.g. complete 1 '{"x": 1}'
+    clean [options] <period>           Clean queue for period ago, period format - https://github.com/zeit/ms#examples
+    logs [options] <jobId>             Get logs of job
+    log <jobId> <data>                 Add log to job
+    events-on                          Turn on logging of queue events
+    events-off                         Turn off logging of queue events
 ```
 
 ### Connect help
@@ -78,6 +78,8 @@ connect --help
     -d, --db <db>          Redis db for connection
     --password <password>  Redis password for connection
     -c, --cert <cert>      Absolute path to pem certificate if TLS used
+    -u, --url <url>        Redis sentinel format URL
+    -e, --exec <exec>      Exec command
 ```
 
 ### Fetch jobs by group help
