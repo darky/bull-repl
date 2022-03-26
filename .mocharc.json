@@ -1,0 +1,13 @@
+{
+  "spec": "./**/*.test.ts",
+  "recursive": true,
+  "require": [
+    "ts-node/register",
+    "source-map-support/register",
+    "tests/setup.ts"
+  ],
+  "ignore": [
+    "./node_modules/**",
+    "./.history/**"
+  ]
+}

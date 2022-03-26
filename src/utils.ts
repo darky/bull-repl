@@ -1,10 +1,12 @@
-import type { JobAdditional, Answer } from "./types";
+import type { JobAdditional, Answer, ConnectionOptions } from "./types";
 import type { Job } from "bull";
 import { run } from "node-jq";
 import chalk from "chalk";
 import ms from "ms";
 import { getQueue } from "./queue";
 import type Vorpal from "@moleculer/vorpal";
+import redisUrlPlus from "redis-url-plus";
+import fs from "fs";
 
 export const LAST_SAVED_CONNECTION_NAME = "_last-active";
 
@@ -131,4 +133,24 @@ export function wrapTryCatch(fn: Function) {
 
 export function getBootCommand() {
   return process.argv.slice(2).join(' ');
+}
+
+export function buildRedisOptions(options: ConnectionOptions) {
+  const redisOptions = options.url ? redisUrlPlus(options.url) : {
+    host: options.host || "localhost",
+    port: options.port || 6379,
+    db: options.db ?? 0,
+    password: options.password || void 0,
+  };
+
+  if (!options.cert && options.url && new URL(options.url).protocol === 'rediss:') {
+    redisOptions.tls = {rejectUnauthorized: false};
+  } else if (options.cert) {
+    redisOptions.tls = {
+      rejectUnauthorized: false,
+      ca: fs.readFileSync(options.cert),
+    };
+  }
+
+  return redisOptions;
 }

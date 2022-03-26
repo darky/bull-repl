@@ -12,17 +12,19 @@ export type Answer = {
 
 export type ConnectParams = {
   queue: string;
-  options: {
-    prefix?: string;
-    host?: string;
-    port?: number;
-    db?: number;
-    exec?: string;
-    url?: string;
-    password?: string;
-    cert?: string;
-  };
+  options: ConnectionOptions;
 };
+
+export type ConnectionOptions = {
+  prefix?: string;
+  host?: string;
+  port?: number;
+  db?: number;
+  exec?: string;
+  url?: string;
+  password?: string;
+  cert?: string;
+}
 
 export type ActiveParams = {
   options: {

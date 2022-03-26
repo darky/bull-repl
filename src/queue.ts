@@ -1,9 +1,7 @@
 import Queue, { Queue as TQueue, QueueOptions } from "bull";
-import { throwYellow, logGreen, LAST_SAVED_CONNECTION_NAME, logBlue, logYellow } from "./utils";
+import { throwYellow, logGreen, LAST_SAVED_CONNECTION_NAME, logBlue, logYellow, buildRedisOptions } from "./utils";
 import type { ConnectParams } from "./types";
-import fs from "fs";
 import type Vorpal from "@moleculer/vorpal";
-import redisUrlPlus from "redis-url-plus";
 
 let queue: TQueue | void;
 let listenEventsOn = false;
@@ -30,21 +28,7 @@ export async function connectToQueue(
   vorpal: Vorpal
 ) {
   const prefix = options.prefix || "bull";
-  const redisOptions = options.url ? redisUrlPlus(options.url) : {
-    host: options.host || "localhost",
-    port: options.port || 6379,
-    db: options.db ?? 0,
-    password: options.password || void 0,
-  };
-
-  if (!options.cert && (options.url && new URL(options.url).protocol === 'rediss:')) {
-    redisOptions.tls = {rejectUnauthorized: false};
-  } else if (options.cert) {
-    redisOptions.tls = {
-      rejectUnauthorized: false,
-      ca: fs.readFileSync(options.cert),
-    };
-  }
+  const redisOptions = buildRedisOptions(options);
 
   await setQueue(name, "", {
     prefix,
