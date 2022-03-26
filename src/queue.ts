@@ -35,13 +35,16 @@ export async function connectToQueue(
     port: options.port || 6379,
     db: options.db ?? 0,
     password: options.password || void 0,
-    tls: options.cert
-      ? {
-        ca: fs.readFileSync(options.cert),
-        rejectUnauthorized: false
-      }
-      : void 0,
   };
+
+  if (!options.cert && (options.url && new URL(options.url).protocol === 'rediss:')) {
+    redisOptions.tls = {rejectUnauthorized: false};
+  } else if (options.cert) {
+    redisOptions.tls = {
+      rejectUnauthorized: false,
+      ca: fs.readFileSync(options.cert),
+    };
+  }
 
   await setQueue(name, "", {
     prefix,
