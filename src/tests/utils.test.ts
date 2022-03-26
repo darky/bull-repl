@@ -78,5 +78,24 @@ describe('Utils', () => {
         password: 'someSecret',
       });
     });
+
+    it('uses cert together with detailed credentials provided', () => {
+      const options = {
+        host: 'someHost',
+        password: 'someSecret',
+        cert: 'tests/fixtures/cert'
+      };
+
+      const result = utils.buildRedisOptions(options);
+
+      expect(result).to.containSubset({
+        host: 'someHost',
+        password: 'someSecret',
+        tls: {
+          rejectUnauthorized: false,
+          ca: Buffer.from('fixture: cert'),
+        },
+      });
+    });
   });
 });
