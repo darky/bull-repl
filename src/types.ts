@@ -10,11 +10,6 @@ export type Answer = {
   a: "y" | "n";
 };
 
-export type ConnectParams = {
-  queue: string;
-  options: ConnectionOptions;
-};
-
 export type ConnectionOptions = {
   prefix?: string;
   host?: string;
@@ -25,6 +20,11 @@ export type ConnectionOptions = {
   password?: string;
   cert?: string;
 }
+
+export type ConnectParams = {
+  queue: string;
+  options: ConnectionOptions;
+};
 
 export type ActiveParams = {
   options: {
