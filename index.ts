@@ -287,7 +287,11 @@ vorpal
       }
 
       if (repeat && typeof repeat === 'string') {
-        jobOptions.repeat = JSON.parse(repeat);
+        try {
+          jobOptions.repeat = JSON.parse(repeat);
+        } catch (e) {
+          return throwYellow(`Error: Argument <repeat> is invalid: ${e}`);
+        }
       }
 
       await answer(vorpal, "Add", options.yes);
