@@ -1,3 +1,5 @@
+import { CronRepeatOptions, RepeatOptions } from "bull";
+
 export type JobAdditional = {
   failedReason: string;
   delay: number;
@@ -48,6 +50,12 @@ export type AddParams = {
   data: string;
   options: {
     name?: string;
+    jobId?: string;
+    priority?: string;
+    delay?: string;
+    attempts?: string;
+    repeat?: CronRepeatOptions | RepeatOptions;
+    lifo?: boolean;
     yes?: boolean;
   };
 };
