@@ -38,6 +38,7 @@ import {
   getBootCommand
 } from "./src/utils";
 import { getQueue, connectToQueue, listenQueueEvents, unlistenQueueEvents } from "./src/queue";
+import type { JobOptions } from "bull";
 
 export const vorpal = new Vorpal();
 vorpal.localStorage("bull-repl-default");
@@ -266,18 +267,17 @@ vorpal
         attempts = 1,
         lifo = false,
       } = options;
-      let opts = {
-        jobId,
-        priority,
-        repeat,
-        delay,
-        attempts,
-        lifo,
-      };
       let jobData: object;
-      let jobOptions: Record<string, any> = Object.fromEntries(
-        Object.entries(opts)
-          .filter(([, value]) => value !== undefined)
+      let jobOptions: JobOptions = Object.fromEntries(
+        Object.entries({
+          jobId,
+          priority,
+          repeat,
+          delay,
+          attempts,
+          lifo,
+        })
+          .filter(([, value]) => value != null)
       );
 
       try {
@@ -290,7 +290,7 @@ vorpal
         try {
           jobOptions.repeat = JSON.parse(repeat);
         } catch (e) {
-          return throwYellow(`Error: Argument <repeat> is invalid: ${e}`);
+          return throwYellow(`Error: Option --repeat is invalid: ${e}`);
         }
       }
 
