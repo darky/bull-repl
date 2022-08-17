@@ -1,6 +1,6 @@
 import { Queue, QueueEvents } from "bullmq";
 import { throwYellow, logGreen, LAST_SAVED_CONNECTION_NAME, logBlue, logYellow } from "./utils";
-import IORedis from "ioredis";
+import IORedis, { RedisOptions } from "ioredis";
 import fs from "fs";
 import type Vorpal from "@moleculer/vorpal";
 import type { ConnectParams } from "./types";
@@ -19,7 +19,7 @@ export async function getQueue() {
 export async function setQueue(
   name: string,
   prefix: string,
-  options: string|IORedis.RedisOptions
+  options: string | RedisOptions
 ) {
   unlistenQueueEvents();
   queue && (await queue.close());
