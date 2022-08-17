@@ -1,3 +1,5 @@
+import type { RepeatOptions } from "bullmq";
+
 export type JobAdditional = {
   failedReason: string;
   delay: number;
@@ -48,6 +50,12 @@ export type AddParams = {
   data: string;
   options: {
     name?: string;
+    jobId?: string;
+    priority?: string;
+    delay?: string;
+    attempts?: string;
+    repeat?: RepeatOptions;
+    lifo?: boolean;
     yes?: boolean;
   };
 };

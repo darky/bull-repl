@@ -38,6 +38,7 @@ import {
   getBootCommand
 } from "./src/utils";
 import { getQueue, connectToQueue, listenQueueEvents, unlistenQueueEvents } from "./src/queue";
+import type { JobsOptions } from "bullmq";
 
 export const vorpal = new Vorpal();
 vorpal.localStorage("bull-repl-default");
@@ -250,6 +251,12 @@ vorpal.command("get <jobId...>", "Get job").action(
 vorpal
   .command("add <data>", "Add job to queue e.g. add '{\"x\": 1}'")
   .option("-n, --name <name>", "name for named job")
+  .option("--jobId <jobId>", "Override the job ID - by default")
+  .option("--priority <priority>", "Optional priority value. ranges from 1 (highest priority) to MAX_INT  (lowest priority)")
+  .option("--delay <delay>", "An amount of milliseconds to wait until this job can be processed")
+  .option("--attempts <attempts>", "The total number of attempts to try the job until it completes")
+  .option("--repeat <repeat>", "Repeat job according to a cron specificatio")
+  .option("--lifo <lifo>", "if true, adds the job to the right of the queue instead of the left (default false)")
   .option(
     "-y, --yes",
     "Skip answer validation"
@@ -257,15 +264,45 @@ vorpal
   .action(
     wrapTryCatch(async function({ data, options }: AddParams) {
       const queue = await getQueue();
+      const {
+        priority,
+        repeat,
+        jobId,
+        delay = 0,
+        attempts = 1,
+        lifo = false,
+      } = options;
       let jobData: object;
+      let jobOptions: JobsOptions = Object.fromEntries(
+        Object.entries({
+          jobId,
+          priority,
+          repeat,
+          delay,
+          attempts,
+          lifo,
+        })
+          .filter(([, value]) => value != null)
+      );
+
       try {
         jobData = JSON.parse(data);
       } catch (e) {
         return throwYellow(`Error: Argument <data> is invalid: ${e}`);
       }
+
+      if (repeat && typeof repeat === 'string') {
+        try {
+          jobOptions.repeat = JSON.parse(repeat);
+        } catch (e) {
+          return throwYellow(`Error: Option --repeat is invalid: ${e}`);
+        }
+      }
+
       await answer(vorpal, "Add", options.yes);
       const jobName: string = options.name || "__default__";
       const addedJob = await queue.add(jobName, jobData, {
+        ...jobOptions,
         timestamp: Date.now()
       });
       logGreen(`Job with name '${jobName}', id '${addedJob.id}' added`);
