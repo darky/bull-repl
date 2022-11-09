@@ -129,6 +129,20 @@ export function wrapTryCatch(fn: Function) {
   };
 }
 
+export function wrapExecCommand(args: string[]) {
+  const index = args.findIndex(item => {
+    if (item === '-e' || item === '--exec') {
+      return true;
+    }
+  })
+
+  if (index > 0) {
+    args[index + 1] = '"' + args[index + 1] + '"';
+  }
+}
+
 export function getBootCommand() {
-  return process.argv.slice(2).join(' ');
+  const args = process.argv.slice(2);
+  wrapExecCommand(args);
+  return args.join(' ');
 }
