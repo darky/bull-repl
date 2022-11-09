@@ -1,3 +1,5 @@
+import fs from 'fs';
+import readline from 'readline';
 import type { JobAdditional, Answer } from "./types";
 import type { Job } from "bullmq";
 import { run } from "node-jq";
@@ -116,6 +118,17 @@ export async function splitJobsByFound(jobIds: string[]) {
   return { notFoundIds, foundJobs };
 }
 
+export function readLines(file: string) {
+  const fileStream = fs.createReadStream(file);
+
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity
+  });
+
+  return rl;
+}
+
 export function wrapTryCatch(fn: Function) {
   return async function(this: unknown, args: unknown) {
     try {
@@ -129,6 +142,20 @@ export function wrapTryCatch(fn: Function) {
   };
 }
 
+export function wrapExecCommand(args: string[]) {
+  const index = args.findIndex(item => {
+    if (item === '-e' || item === '--exec') {
+      return true;
+    }
+  })
+
+  if (index > 0) {
+    args[index + 1] = '"' + args[index + 1] + '"';
+  }
+}
+
 export function getBootCommand() {
-  return process.argv.slice(2).join(' ');
+  const args = process.argv.slice(2);
+  wrapExecCommand(args);
+  return args.join(' ');
 }

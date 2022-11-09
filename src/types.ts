@@ -21,6 +21,7 @@ export type ConnectParams = {
     port?: number;
     db?: number;
     exec?: string;
+    execFile?: string;
     password?: string;
     cert?: string;
   };
@@ -62,6 +63,14 @@ export type AddParams = {
 
 export type RmParams = GetParams;
 export type RetryParams = GetParams;
+
+export type RetryFailedParams = {
+  options: {
+    number?: number;
+    yes?: boolean;
+  }
+}
+
 export type PromoteParams = GetParams;
 
 export type FailParams = {
