@@ -1,3 +1,5 @@
+import fs from 'fs';
+import readline from 'readline';
 import type { JobAdditional, Answer } from "./types";
 import type { Job } from "bull";
 import { run } from "node-jq";
@@ -114,6 +116,17 @@ export async function splitJobsByFound(jobIds: string[]) {
     i++;
   }
   return { notFoundIds, foundJobs };
+}
+
+export function readLines(file: string) {
+  const fileStream = fs.createReadStream(file);
+
+  const rl = readline.createInterface({
+    input: fileStream,
+    crlfDelay: Infinity
+  });
+
+  return rl;
 }
 
 export function wrapTryCatch(fn: Function) {
