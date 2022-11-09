@@ -11,6 +11,7 @@ import type {
   AddParams,
   RmParams,
   RetryParams,
+  RetryFailedParams,
   PromoteParams,
   FailParams,
   CompleteParams,
@@ -336,14 +337,18 @@ vorpal
 vorpal
   .command("retry-failed", "Retry first 100 failed jobs")
   .option(
+    "-n, --number <number>",
+    "Number of failed jobs. default: 100"
+  )
+  .option(
     "-y, --yes",
     "Skip answer validation"
   )
   .action(
-    wrapTryCatch(async function({ options }: YesParams) {
+    wrapTryCatch(async function({ options }: RetryFailedParams) {
       const queue = await getQueue();
       await answer(vorpal, "Retry failed jobs", options.yes);
-      const failedJobs = await queue.getFailed(0, 100);
+      const failedJobs = await queue.getFailed(0, options.number || 100);
       await Promise.all(failedJobs.map(j => j.retry()));
       logGreen("All failed jobs retried");
     })
