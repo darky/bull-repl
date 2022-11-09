@@ -36,6 +36,7 @@ import {
   splitJobsByFound,
   wrapTryCatch,
   LAST_SAVED_CONNECTION_NAME,
+  readLines,
   getBootCommand
 } from "./src/utils";
 import { getQueue, connectToQueue, listenQueueEvents, unlistenQueueEvents } from "./src/queue";
@@ -58,12 +59,24 @@ vorpal
   .option("-c, --cert <cert>", "Absolute path to pem certificate if TLS used")
   .option("-u, --url <url>", "Redis sentinel format URL")
   .option("-e, --exec <exec>", "Exec command")
+  .option("-f, --execFile <execFile>", "Exec commands from file")
   .action(
     wrapTryCatch(async (params: ConnectParams) => {
       await connectToQueue(params, vorpal);
       if (params.options.exec) {
         process.nextTick(async () => {
           await vorpal.exec(params.options.exec!);
+          await vorpal.exec('exit');
+        });
+      }
+
+      if (params.options.execFile) {
+        process.nextTick(async () => {
+          const lines = readLines(params.options.execFile!);
+          for await (const line of lines) {
+            await logGreen(line);
+            await vorpal.exec(line);
+          }
           await vorpal.exec('exit');
         });
       }

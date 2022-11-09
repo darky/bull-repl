@@ -20,6 +20,7 @@ export type ConnectParams = {
     port?: number;
     db?: number;
     exec?: string;
+    execFile?: string;
     url?: string;
     password?: string;
     cert?: string;
