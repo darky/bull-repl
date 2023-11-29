@@ -13,7 +13,7 @@ export type Answer = {
 };
 
 export type ConnectParams = {
-  queue: string;
+  queue: string[];
   options: {
     prefix?: string;
     host?: string;

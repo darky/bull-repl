@@ -50,7 +50,7 @@ export const localStorage = (vorpal.localStorage as unknown) as WindowLocalStora
 };
 
 vorpal
-  .command("connect <queue>", "Connect to bull queue")
+  .command("connect <queue...>", "Connect to bull queue")
   .option("--prefix <prefix>", "Prefix to use for all queue jobs")
   .option("-h, --host <host>", "Redis host for connection")
   .option("-p, --port <port>", "Redis port for connection")
@@ -74,7 +74,7 @@ vorpal
         process.nextTick(async () => {
           const lines = readLines(params.options.execFile!);
           for await (const line of lines) {
-            await logGreen(line);
+            logGreen(line);
             await vorpal.exec(line);
           }
           await vorpal.exec('exit');

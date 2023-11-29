@@ -26,9 +26,12 @@ export async function setQueue(
 }
 
 export async function connectToQueue(
-  { queue: name, options }: ConnectParams,
+  params: ConnectParams,
   vorpal: Vorpal
 ) {
+  const { options } = params;
+  const name = params.queue.join(' ');
+
   const prefix = options.prefix || "bull";
   const redisOptions = options.url ? redisUrlPlus(options.url) : {
     host: options.host || "localhost",
@@ -50,7 +53,7 @@ export async function connectToQueue(
   (<WindowLocalStorage["localStorage"]>(<unknown>vorpal.localStorage)).setItem(
     LAST_SAVED_CONNECTION_NAME,
     JSON.stringify({
-      queue: name,
+      queue: params.queue,
       options
     } as ConnectParams)
   );
