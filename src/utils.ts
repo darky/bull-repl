@@ -47,7 +47,7 @@ export const getTimeAgoFilter = (timeAgo?: string) => {
   return new Promise<string>(resolve => {
     try {
       const msAgo = timeAgo && timeAgo.length ? ms(timeAgo) : void 0;
-      const filter = msAgo ? `{root: [.root[] | select((.timestamp | strptime("%Y-%m-%dT%H:%M:%S.%3Z") | mktime | . * 1000) >= ${Date.now() - msAgo})]}` : '';
+      const filter = msAgo ? `{root: [.root[] | select((.timestamp | split(".")[0] | strptime("%Y-%m-%dT%H:%M:%S") | mktime | . * 1000) >= ${Date.now() - msAgo})]}` : '';
       resolve(filter);
     } catch (e) {
       throwYellow(`Error: Argument to --timeAgo is invalid: ${e}`);
