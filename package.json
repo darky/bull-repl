@@ -1,6 +1,6 @@
 {
   "name": "bull-repl",
-  "version": "1.10.0",
+  "version": "1.10.1",
   "description": "Bull / BullMQ queue command line REPL",
   "repository": {
     "type": "git",
