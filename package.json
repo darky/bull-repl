@@ -21,7 +21,7 @@
     "bull": "^4.12.2",
     "chalk": "^4.1.0",
     "ms": "^2.1.3",
-    "node-jq": "^4.3.0",
+    "node-jq": "^6.0.1",
     "redis-url-plus": "^1.1.0"
   },
   "devDependencies": {
