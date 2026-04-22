@@ -71,6 +71,15 @@ export type RetryFailedParams = {
   }
 }
 
+export type RmFailedParams = {
+  options: {
+    number?: number;
+    from?: string;
+    to?: string;
+    yes?: boolean;
+  }
+}
+
 export type PromoteParams = GetParams;
 
 export type FailParams = {

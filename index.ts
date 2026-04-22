@@ -12,6 +12,7 @@ import type {
   RmParams,
   RetryParams,
   RetryFailedParams,
+  RmFailedParams,
   PromoteParams,
   FailParams,
   CompleteParams,
@@ -361,9 +362,90 @@ vorpal
     wrapTryCatch(async function({ options }: RetryFailedParams) {
       const queue = await getQueue();
       await answer(vorpal, "Retry failed jobs", options.yes);
-      const failedJobs = await queue.getFailed(0, options.number || 100);
-      await Promise.all(failedJobs.map(j => j.retry()));
-      logGreen("All failed jobs retried");
+
+      const start = 0;
+      const end = Number(options.number) || 100;
+
+      const fetched = await queue.getFailed(start, end);
+      const jobs = (Array.isArray(fetched) ? fetched : [])
+        .filter(j => j && typeof j.retry === "function");
+
+      if (!jobs.length) {
+        logYellow(`No failed jobs found in range ${start}-${end}`);
+        return;
+      }
+
+      const results = await Promise.allSettled(jobs.map(j => j.retry()));
+      const ok = results.filter(r => r.status === "fulfilled").length;
+      const fail = results.length - ok;
+
+      logGreen(`Retried ${ok} failed jobs`);
+      if (fail > 0) {
+        logYellow(`Skipped/failed ${fail} jobs`);
+      }
+    })
+  );
+
+vorpal
+  .command("rm-failed", "Remove failed jobs")
+  .option("-n, --number <number>", "Number of failed jobs to fetch. default: 100 (or 10000 when date filters used)")
+  .option("--from <from>", "Remove jobs finished from this date (ISO format, e.g. 2024-01-15 or 2024-01-15T10:00:00)")
+  .option("--to <to>", "Remove jobs finished to this date (ISO format, e.g. 2024-01-16)")
+  .option("-y, --yes", "Skip answer validation")
+  .action(
+    wrapTryCatch(async function({ options }: RmFailedParams) {
+      const queue = await getQueue();
+
+      const hasDateFilter = options.from || options.to;
+      const end = Number(options.number) || (hasDateFilter ? 10000 : 100);
+
+      let fromDate: Date | undefined;
+      let toDate: Date | undefined;
+
+      if (options.from) {
+        fromDate = new Date(options.from);
+        if (isNaN(fromDate.getTime())) {
+          return throwYellow(`Invalid --from date: ${options.from}`);
+        }
+      }
+
+      if (options.to) {
+        toDate = new Date(options.to);
+        if (isNaN(toDate.getTime())) {
+          return throwYellow(`Invalid --to date: ${options.to}`);
+        }
+        if (!options.to.includes("T") && !options.to.includes(":")) {
+          toDate.setHours(23, 59, 59, 999);
+        }
+      }
+
+      const fetched = await queue.getFailed(0, end);
+      let jobs = (Array.isArray(fetched) ? fetched : []).filter(j => j);
+
+      if (fromDate || toDate) {
+        jobs = jobs.filter(j => {
+          const jobDate = new Date(j.finishedOn || j.timestamp);
+          if (fromDate && jobDate < fromDate) return false;
+          if (toDate && jobDate > toDate) return false;
+          return true;
+        });
+      }
+
+      if (!jobs.length) {
+        logYellow("No failed jobs found matching criteria");
+        return;
+      }
+
+      await answer(vorpal, `Remove ${jobs.length} failed jobs`, options.yes);
+
+      const results = await Promise.allSettled(jobs.map(j => j.remove()));
+      const ok = results.filter(r => r.status === "fulfilled").length;
+      const fail = results.length - ok;
+
+      logGreen(`Removed ${ok} failed jobs`);
+      if (fail > 0) {
+        logYellow(`Failed to remove ${fail} jobs`);
+      }
     })
   );
 
