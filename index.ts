@@ -361,9 +361,27 @@ vorpal
     wrapTryCatch(async function({ options }: RetryFailedParams) {
       const queue = await getQueue();
       await answer(vorpal, "Retry failed jobs", options.yes);
-      const failedJobs = await queue.getFailed(0, options.number || 100);
-      await Promise.all(failedJobs.map(j => j.retry()));
-      logGreen("All failed jobs retried");
+
+      const start = 0;
+      const end = Number(options.number) || 100;
+
+      const fetched = await queue.getFailed(start, end);
+      const jobs = (Array.isArray(fetched) ? fetched : [])
+        .filter(j => j && typeof j.retry === "function");
+
+      if (!jobs.length) {
+        logYellow(`No failed jobs found in range ${start}-${end}`);
+        return;
+      }
+
+      const results = await Promise.allSettled(jobs.map(j => j.retry()));
+      const ok = results.filter(r => r.status === "fulfilled").length;
+      const fail = results.length - ok;
+
+      logGreen(`Retried ${ok} failed jobs`);
+      if (fail > 0) {
+        logYellow(`Skipped/failed ${fail} jobs`);
+      }
     })
   );
 
