@@ -12,6 +12,7 @@ import type {
   RmParams,
   RetryParams,
   RetryFailedParams,
+  RmFailedParams,
   PromoteParams,
   FailParams,
   CompleteParams,
@@ -381,6 +382,69 @@ vorpal
       logGreen(`Retried ${ok} failed jobs`);
       if (fail > 0) {
         logYellow(`Skipped/failed ${fail} jobs`);
+      }
+    })
+  );
+
+vorpal
+  .command("rm-failed", "Remove failed jobs")
+  .option("-n, --number <number>", "Number of failed jobs to fetch. default: 100 (or 10000 when date filters used)")
+  .option("--from <from>", "Remove jobs finished from this date (ISO format, e.g. 2024-01-15 or 2024-01-15T10:00:00)")
+  .option("--to <to>", "Remove jobs finished to this date (ISO format, e.g. 2024-01-16)")
+  .option("-y, --yes", "Skip answer validation")
+  .action(
+    wrapTryCatch(async function({ options }: RmFailedParams) {
+      const queue = await getQueue();
+
+      const hasDateFilter = options.from || options.to;
+      const end = Number(options.number) || (hasDateFilter ? 10000 : 100);
+
+      let fromDate: Date | undefined;
+      let toDate: Date | undefined;
+
+      if (options.from) {
+        fromDate = new Date(options.from);
+        if (isNaN(fromDate.getTime())) {
+          return throwYellow(`Invalid --from date: ${options.from}`);
+        }
+      }
+
+      if (options.to) {
+        toDate = new Date(options.to);
+        if (isNaN(toDate.getTime())) {
+          return throwYellow(`Invalid --to date: ${options.to}`);
+        }
+        if (!options.to.includes("T") && !options.to.includes(":")) {
+          toDate.setHours(23, 59, 59, 999);
+        }
+      }
+
+      const fetched = await queue.getFailed(0, end);
+      let jobs = (Array.isArray(fetched) ? fetched : []).filter(j => j);
+
+      if (fromDate || toDate) {
+        jobs = jobs.filter(j => {
+          const jobDate = new Date(j.finishedOn || j.timestamp);
+          if (fromDate && jobDate < fromDate) return false;
+          if (toDate && jobDate > toDate) return false;
+          return true;
+        });
+      }
+
+      if (!jobs.length) {
+        logYellow("No failed jobs found matching criteria");
+        return;
+      }
+
+      await answer(vorpal, `Remove ${jobs.length} failed jobs`, options.yes);
+
+      const results = await Promise.allSettled(jobs.map(j => j.remove()));
+      const ok = results.filter(r => r.status === "fulfilled").length;
+      const fail = results.length - ok;
+
+      logGreen(`Removed ${ok} failed jobs`);
+      if (fail > 0) {
+        logYellow(`Failed to remove ${fail} jobs`);
       }
     })
   );
