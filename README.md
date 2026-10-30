@@ -78,6 +78,7 @@ connect --help
     -d, --db <db>          Redis db for connection
     --password <password>  Redis password for connection
     -c, --cert <cert>      Absolute path to pem certificate if TLS used
+    --reject-unauthorized  Disable TLS certificate verification
     -u, --url <url>        Redis sentinel format URL
     -e, --exec <exec>      Exec command
 ```
