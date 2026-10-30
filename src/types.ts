@@ -24,6 +24,7 @@ export type ConnectParams = {
     url?: string;
     password?: string;
     cert?: string;
+    rejectUnauthorized?: boolean;
   };
 };
 

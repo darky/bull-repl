@@ -57,6 +57,10 @@ vorpal
   .option("-d, --db <db>", "Redis db for connection")
   .option("--password <password>", "Redis password for connection")
   .option("-c, --cert <cert>", "Absolute path to pem certificate if TLS used")
+  .option(
+    "--reject-unauthorized",
+    "Disable TLS certificate verification (sets tls.rejectUnauthorized to false)"
+  )
   .option("-u, --url <url>", "Redis sentinel format URL")
   .option("-e, --exec <exec>", "Exec command")
   .option("-f, --execFile <execFile>", "Exec commands from file")
